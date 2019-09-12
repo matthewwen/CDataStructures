@@ -1,12 +1,15 @@
 NAME=proj1
 C_FLAG=-Werror -Wall -O3
+
 SRC=mycode/sorting.c \
-	sorting_main.c
+	test_main.c\
+	#sorting_main.c 
+
 HEADER=mycode/sorting.h
 LOGFILE=$(LOGPATH)/$(shell date --iso=seconds) 
 
 $(NAME):
-	$(CC) $(CFLAG) $(SRC) -o $(NAME)
+	$(CC) $(CFLAG) $(SRC) -o $(NAME) -I mycode
 
 rand:
 	random_file output_filename num_of_integers random_seed
