@@ -1,8 +1,9 @@
-#include "sorting.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <limits.h>
+#include "sorting.h"
 
 long *Load_File(char * Filename, int * Size) {
     FILE * fp = fopen(Filename, "r");
@@ -21,7 +22,6 @@ long *Load_File(char * Filename, int * Size) {
             num[i] += j * (c - '0');
             num_elements -= 1;
             fseek(fp, -2L, SEEK_CUR);
-            printf("%ld\n", ftell(fp));
         }
         fseek(fp, -1L, SEEK_CUR);
         num_elements--;
@@ -31,7 +31,16 @@ long *Load_File(char * Filename, int * Size) {
 }
 
 int Save_File(char *Filename, long *Array, int Size) {
-
+    FILE * fp = fopen(Filename, "w");
+    int size  = 2;
+    for(long val = LONG_MAX; val > 0 && (++size > 0); val /= 10);
+    char * buffer = malloc(size * sizeof(*buffer));
+    for (int i = 0; i < Size; i++) {
+        sprintf(buffer, "%ld\n", Array[i]);
+        fwrite(buffer, sizeof(*buffer), strlen(buffer), fp);
+    }
+    free(buffer);
+    fclose(fp);
 }
 
 void Shell_Insertion_Sort(long *Array, int Size, double *N_Comp, double *N_Move) {
@@ -39,5 +48,9 @@ void Shell_Insertion_Sort(long *Array, int Size, double *N_Comp, double *N_Move)
 }
 
 void Improved_Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move) {
+
+    for (;;) {
+
+    }
 
 }
