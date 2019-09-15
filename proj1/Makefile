@@ -2,8 +2,8 @@ NAME=proj1
 C_FLAG=-Werror -Wall -O3
 
 SRC=mycode/sorting.c \
-	sorting_main.c \
-	#test_main.c\
+	test_main.c\
+	#sorting_main.c \
 
 HEADER=mycode/sorting.h
 LOGFILE=$(LOGPATH)/$(shell date --iso=seconds) 
