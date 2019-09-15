@@ -48,9 +48,24 @@ void Shell_Insertion_Sort(long *Array, int Size, double *N_Comp, double *N_Move)
 }
 
 void Improved_Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move) {
+    int left_idx  = 0;
+    int right_idx = Size - 1;
 
-    for (;;) {
-
+    for (int i = 0; i < Size && (left_idx >= 0) && (right_idx >= 0); i++) {
+        bool go_left = (i % 2) == 0;
+        int pos      = -1;
+        for (int j = go_left ? left_idx : right_idx; j <= right_idx && j >= left_idx; j += go_left ? 1: -1) {
+            *N_Comp = *N_Comp + 1;
+            if (Array[j] > Array[j + 1]) {
+                Array[j]     = Array[j] + Array[j + 1];
+                Array[j + 1] = Array[j] - Array[j + 1];
+                Array[j]     = Array[j] - Array[j + 1];
+                *N_Move      = *N_Move + 1;
+                pos          = j;
+            }
+        }
+        left_idx     = go_left ? left_idx: pos + 1; 
+        right_idx    = go_left ? pos - 1 : right_idx;
     }
 
 }
