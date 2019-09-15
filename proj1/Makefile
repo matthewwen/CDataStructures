@@ -5,6 +5,8 @@ SRC=mycode/sorting.c \
 	test_main.c\
 	#sorting_main.c \
 
+PDF=ms1.pdf
+
 HEADER=mycode/sorting.h
 LOGFILE=$(LOGPATH)/$(shell date --iso=seconds) 
 
@@ -18,6 +20,6 @@ clean:
 	rm -rf $(NAME)
 
 add:
-	git add $(SRC) $(HEADER) Makefile
+	git add $(SRC) $(HEADER) $(PDF) Makefile
 	git commit -m "$(LOGFILE)"
 	git push origin master
