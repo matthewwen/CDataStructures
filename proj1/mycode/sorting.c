@@ -67,5 +67,4 @@ void Improved_Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move)
         left_idx     = go_left ? left_idx: pos + 1; 
         right_idx    = go_left ? pos - 1 : right_idx;
     }
-
 }
