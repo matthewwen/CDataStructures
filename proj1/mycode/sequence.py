@@ -1,3 +1,7 @@
+class element:
+	two: int
+	three: int
+
 def smooth_number_3(n):
 	res = []
 	for i in range(0,n) :
@@ -21,4 +25,17 @@ def smooth_number_3(n):
 			res[i] = u3
 	return res
 
-print("{}".format(smooth_number_3(20)))
+def print_list(list, limit):
+	idx = 0
+	while list[idx + 1] < limit:
+		idx = idx + 1
+	for i in range(idx, -1, -1):
+		print(list[i])
+
+list = smooth_number_3(10001)
+
+#print_list(list, 1001)
+print_list(list, 10001)
+# print_list(list, 100001)
+# print_list(list, 1000001)
+
