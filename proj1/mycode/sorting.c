@@ -114,7 +114,7 @@ void Improved_Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move)
 void Insert_Sort(long *Array, int Size, int Start, int Increment, double *N_Comp, double *N_Move) {
     int i, j;
     for (i = Start; i < Size; i += Increment) {
-        for (j = i; j >= Increment && Array[j] < Array[j - Increment]; j--) {
+        for (j = i; j >= Increment && Array[j] < Array[j - Increment]; j -= Increment) {
             long temp   = Array[j];
             Array[j]    = Array[j - Increment];
             Array[j - Increment] = temp;

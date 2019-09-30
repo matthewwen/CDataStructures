@@ -4,8 +4,8 @@ C_FLAG=-Werror -Wall -O3
 SRC=mycode/sorting.c
 
 MAIN=\
-	sorting_main.c \
-	#test_main.c\
+	test_main.c\
+	#sorting_main.c \
 
 OTHER=mycode/sequence.py
 
