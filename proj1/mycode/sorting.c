@@ -7,12 +7,12 @@
 #include "sorting.h"
 
 typedef struct{
-    int * sequence;
+    int * seq;
     int size;
 }sequence_t;
 
 void Insert_Sort(long *Array, int Size, int Start, int Increment, double *N_Comp, double *N_Move);
-void Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move);
+void Bubble_Sort(long *Array, int Size, int Start, int Increment, double *N_Comp, double *N_Move);
 sequence_t Two_Three_Seq(int Size);
 
 long *Load_File(char * Filename, int * Size) {
@@ -63,18 +63,17 @@ void Shell_Insertion_Sort(long *Array, int Size, double *N_Comp, double *N_Move)
     int j;
     sequence_t info = Two_Three_Seq(Size);
     for (i = 0; i < info.size; i++) {
-        for (j = 0; j < info.sequence[i]; j++) {
-            Insert_Sort(Array, Size, j, info.sequence[i], N_Comp, N_Move);
+        for (j = 0; j < info.seq[i]; j++) {
+            Insert_Sort(Array, Size, j, info.seq[i], N_Comp, N_Move);
         }
     }
-    free(info.sequence);
+    free(info.seq);
 }
 
 sequence_t Two_Three_Seq(int Size) {
     int degree = 0;
 
-    int i;
-    int j;
+    int i, j;
     for(i = 1; i * 3 < Size && ++degree; i *= 3){}
     int * seq_carrier = malloc((degree + 1) * sizeof(*seq_carrier));
 
@@ -105,10 +104,30 @@ sequence_t Two_Three_Seq(int Size) {
     }
     
    free(seq_carrier);
-   return (sequence_t) {.sequence = seq, .size = num_seq};
+   return (sequence_t) {.seq = seq, .size = num_seq};
+}
+
+sequence_t One_N_Seq(int Size) {
+    int * seq = malloc(sizeof(*seq) * Size);
+    int N = Size;
+    int i;
+    int s = 0;
+    for (i = 0; N > 1 && i < Size; i++) {
+        N /= 1.3;
+        N = (N == 9) || (N == 10) ? 11: N;
+        seq[i] = N;
+        s++;
+    }
+    return (sequence_t) {.seq = seq, .size = s};
 }
 
 void Improved_Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move) {
+    sequence_t info = One_N_Seq(Size);
+    int i;
+    for (i = 0; i < info.size; i++) {
+        //printf("%d\n", info.seq[i]);
+        Bubble_Sort(Array, Size, info.seq[i] - 1, info.seq[i], N_Comp, N_Move);
+    }
 }
 
 void Insert_Sort(long *Array, int Size, int Start, int Increment, double *N_Comp, double *N_Move) {
@@ -125,31 +144,33 @@ void Insert_Sort(long *Array, int Size, int Start, int Increment, double *N_Comp
     }
 }
 
-void Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move) {
-    int left_idx  = 0;
-    int right_idx = Size - 2;
+void Bubble_Sort(long *Array, int Size, int Start, int Increment, double *N_Comp, double *N_Move) {
+    int left_idx  = Start;
+    int right_idx = Size - 1 - Increment;
 
 	int i , j;
     long temp;
-    for (i = 0; i < Size && (left_idx >= 0) && (right_idx >= 0); i++) {
-        bool go_left  = (i % 2) == 0;
-        int pos       = -1;
-        int increment = go_left ? 1: -1;
-        for (j = go_left ? left_idx : right_idx; j <= right_idx && j >= left_idx; j += increment) {
+    bool go_left  = false;
+    while (right_idx > left_idx) {
+        go_left  = !go_left;
+        //int pos  = go_left ? left_idx: right_idx;
+        int pos;
+        int gap = go_left ? Increment: -1 * Increment;
+        for (j = go_left ? left_idx : right_idx; j <= right_idx && j >= left_idx; j += gap) {
             *N_Comp = *N_Comp + 1;
-            if (Array[j] > Array[j + 1]) {
-                temp         = Array[j];
-                Array[j]     = Array[j + 1];
-                Array[j + 1] = temp; 
-                *N_Move      = *N_Move + 1;
-                pos          = j;
+            if (Array[j] > Array[j + Increment]) {
+                temp                 = Array[j];
+                Array[j]             = Array[j + Increment];
+                Array[j + Increment] = temp; 
+                *N_Move              = *N_Move + Increment;
+                pos                  = j;
             }
         }
         if (go_left) {
-            right_idx = pos - 1;
+            right_idx = pos - Increment;
         }
         else {
-            left_idx = pos + 1; 
+            left_idx = pos + Increment; 
         }
     }
 }
