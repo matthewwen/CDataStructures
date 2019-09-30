@@ -34,8 +34,8 @@ def print_list(list, limit):
 
 list = smooth_number_3(10001)
 
-#print_list(list, 1001)
+print_list(list, 1001)
 print_list(list, 10001)
-# print_list(list, 100001)
-# print_list(list, 1000001)
+print_list(list, 100001)
+print_list(list, 1000001)
 

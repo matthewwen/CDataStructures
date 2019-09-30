@@ -6,8 +6,14 @@
 #include <stdint.h>
 #include "sorting.h"
 
+typedef struct{
+    int * sequence;
+    int size;
+}sequence_t;
+
 void Insert_Sort(long *Array, int Size, int Start, int Increment, double *N_Comp, double *N_Move);
 void Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move);
+sequence_t Two_Three_Seq(int Size);
 
 long *Load_File(char * Filename, int * Size) {
     FILE * fp = fopen(Filename, "r");
@@ -53,50 +59,53 @@ int Save_File(char *Filename, long *Array, int Size) {
 }
 
 void Shell_Insertion_Sort(long *Array, int Size, double *N_Comp, double *N_Move) {
+    int i;
+    int j;
+    sequence_t info = Two_Three_Seq(Size);
+    for (i = 0; i < info.size; i++) {
+        for (j = 0; j < info.sequence[i]; j++) {
+            Insert_Sort(Array, Size, j, info.sequence[i], N_Comp, N_Move);
+        }
+    }
+    free(info.sequence);
+}
+
+sequence_t Two_Three_Seq(int Size) {
     int degree = 0;
 
     int i;
-    for(i = 1; i * 3 < Size && ++degree; i *= 3){}
-
-    int * seq_carrier = malloc((degree + 1) * sizeof(*seq_carrier));
-    int two_mult = 1;
-    int max_idx  = degree;
     int j;
+    for(i = 1; i * 3 < Size && ++degree; i *= 3){}
+    int * seq_carrier = malloc((degree + 1) * sizeof(*seq_carrier));
+
+    int two_mult = 1;
+    int num_seq  = degree + 1;
+    int num_two  = 0;
     for (j = degree; i > 0; i /= 3) {
         seq_carrier[j] = i * two_mult;
+        num_seq += num_two;
         for(;seq_carrier[j] * 2 < Size; seq_carrier[j] *= 2){
             two_mult *= 2;
-        }
-        if (seq_carrier[j] > seq_carrier[max_idx]) {
-            max_idx = j;
+            num_two++;
+            num_seq++;
         }
         j--;
     }
 
-    int even_end = degree % 2 == 0 ? degree: degree - 1;
-    int odd_end  = degree % 2 == 1 ? degree: degree - 1;
-
-    for(i = max_idx; even_end >= 0 && odd_end >= 0;) {
-        printf("%d\n", seq_carrier[i]);
-        if (seq_carrier[i] % 2 != 0) {
-            if (i % 2 == 0) {
-                even_end -= 2;
-            }
-            else {
-                odd_end -= 2;
+    int * seq = malloc(num_seq * sizeof(*seq));
+    for (i = 0; i < num_seq; i++) {
+        int max_idx = 0;
+        for (j = 1; j <= degree; j++) {
+            if (seq_carrier[j] != -1 && seq_carrier[max_idx] < seq_carrier[j]) {
+                max_idx = j;
             }
         }
-        else {
-            seq_carrier[i] /= 2;
-        }
-        i -= 2;
-        if (i < 0) {
-            i = i % 2  == 0 ? odd_end: even_end;
-        }
+        seq[i] = seq_carrier[max_idx];
+        seq_carrier[max_idx] = seq_carrier[max_idx] % 2 != 0 ? -1 : seq_carrier[max_idx] / 2;
     }
-    printf("%d\n", 2);
-    printf("%d\n", 1);
-    free(seq_carrier);
+    
+   free(seq_carrier);
+   return (sequence_t) {.sequence = seq, .size = num_seq};
 }
 
 void Improved_Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move) {
