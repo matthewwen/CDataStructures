@@ -20,6 +20,7 @@ long *Load_File(char * Filename, int * Size) {
 
     char c;
     for (*Size = 0; (c = fgetc(fp)) != EOF; *Size += c == '\n' ? 1: 0) {}
+    *Size = *Size - 1;
 
     long * num = malloc(sizeof(*num) * *Size);
 
