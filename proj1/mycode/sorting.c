@@ -75,8 +75,8 @@ void Shell_Insertion_Sort(long *Array, int Size, double *N_Comp, double *N_Move)
                 local_move = local_move + 1; 
             }
             Array[k] = temp;
-            local_comp = local_comp + 1;
         }
+        local_comp = local_comp + Size - gap + 1;
     }
 
     local_comp = local_comp + local_move;
@@ -92,8 +92,7 @@ void Improved_Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move)
     sequence_t info = One_N_Seq(Size);
     int i, j, k;
     int gap;
-	long temp;
-    long temp_mgap;
+	long temp, temp_mgap;
     for (i = 0; i < info.size; i++) {
 		gap = info.seq[i];
         for (j = gap; j < Size; j++) {
@@ -102,8 +101,8 @@ void Improved_Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move)
                 Array[k]       = temp_mgap;
                 Array[k - gap] = temp; 
             }
-			local_comp = local_comp + 1;
         }
+		local_comp = local_comp + Size - gap + 1;
     }
     local_comp = local_comp + local_move;
 	*N_Comp += local_comp;
