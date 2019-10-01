@@ -36,7 +36,7 @@ long *Load_File(char * Filename, int * Size) {
 }
 
 int Save_File(char *Filename, long *Array, int Size) {
-    FILE * fp = fopen(Filename, "w");
+    FILE * fp = fopen(Filename, "w+");
     int i;
     for (i = 0; i < Size; i++) {
         fprintf(fp, "%ld\n", Array[i]);
