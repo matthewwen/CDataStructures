@@ -10,7 +10,7 @@ TEST=test_main.c
 OTHER=mycode/sequence.py
 
 PDF=ms1.pdf \
-	Report.pdf
+	report.pdf
 
 HEADER=mycode/sorting.h
 LOGFILE=$(LOGPATH)/$(shell date --iso=seconds) 
