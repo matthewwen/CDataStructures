@@ -25,6 +25,7 @@ long *Load_File(char * Filename, int * Size) {
 
 	int i;
     fseek(fp, 0L, SEEK_SET);
+    fscanf(fp, "%ld", num);
     for (i = 0; i < *Size; i++) {
 		fscanf(fp, "%ld", num + i);
     }
