@@ -17,18 +17,23 @@ void save_file(char * Filename, sequence_t seq);
 
 long *Load_File(char * Filename, int * Size) {
     FILE * fp = fopen(Filename, "r");
+    if (fp == NULL) {
+        return NULL;
+    }
 
     char c;
     for (*Size = 0; (c = fgetc(fp)) != EOF; *Size += c == '\n' ? 1: 0) {}
     *Size = *Size - 1;
 
     long * num = malloc(sizeof(*num) * *Size);
-
+    
 	int i;
-    fseek(fp, 0L, SEEK_SET);
-    fscanf(fp, "%ld", num);
-    for (i = 0; i < *Size; i++) {
-		fscanf(fp, "%ld", num + i);
+    if (num != NULL) {
+        fseek(fp, 0L, SEEK_SET);
+        fscanf(fp, "%ld", num);
+        for (i = 0; i < *Size; i++) {
+            fscanf(fp, "%ld", num + i);
+        }
     }
     fclose(fp);
 
@@ -37,6 +42,9 @@ long *Load_File(char * Filename, int * Size) {
 
 int Save_File(char *Filename, long *Array, int Size) {
     FILE * fp = fopen(Filename, "w");
+    if (fp == NULL) {
+        return 0;
+    }
     int i;
     fprintf(fp, "%d\n", Size);
     for (i = 0; i < Size; i++) {
