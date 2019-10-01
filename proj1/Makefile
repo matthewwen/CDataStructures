@@ -9,7 +9,8 @@ TEST=test_main.c
 
 OTHER=mycode/sequence.py
 
-PDF=ms1.pdf
+PDF=ms1.pdf \
+	Report.pdf
 
 HEADER=mycode/sorting.h
 LOGFILE=$(LOGPATH)/$(shell date --iso=seconds) 
@@ -34,3 +35,6 @@ add:
 
 ms1submit:
 	turnin -c ece368 -p proj1ms1 ms1.pdf
+
+finalsubmit:
+	turnin -c ece368 -p proj1 mycode/sorting.c mycode/sorting.h report.pdf

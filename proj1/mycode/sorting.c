@@ -11,9 +11,9 @@ typedef struct{
     int size;
 }sequence_t;
 
-void Insert_Sort(long *Array, int Size, int Start, int Increment, double *N_Comp, double *N_Move);
-void Bubble_Sort(long *Array, int Size, int Start, int Increment, double *N_Comp, double *N_Move);
 sequence_t Two_Three_Seq(int Size);
+sequence_t One_N_Seq(int Size);
+void save_file(char * Filename, sequence_t seq);
 
 long *Load_File(char * Filename, int * Size) {
     FILE * fp = fopen(Filename, "r");
@@ -35,43 +35,46 @@ long *Load_File(char * Filename, int * Size) {
 
 int Save_File(char *Filename, long *Array, int Size) {
     FILE * fp = fopen(Filename, "w");
-    int size  = 2;
-	long val;
-    for(val = LONG_MAX; val > 0 && (++size > 0); val /= 10);
-    char * buffer = malloc(size * sizeof(*buffer));
-	int i;
+    int i;
     for (i = 0; i < Size; i++) {
-        sprintf(buffer, "%ld\n", Array[i]);
-        fwrite(buffer, sizeof(*buffer), strlen(buffer), fp);
+        fprintf(fp, "%ld\n", Array[i]);
     }
-    free(buffer);
     fclose(fp);
 }
 
 void Shell_Insertion_Sort(long *Array, int Size, double *N_Comp, double *N_Move) {
-    int i;
-    int j;
     sequence_t info = Two_Three_Seq(Size);
+    int i, j, k;
     for (i = 0; i < info.size; i++) {
         for (j = info.seq[i]; j < Size; j++) {
-            Insert_Sort(Array, Size, j, info.seq[i], N_Comp, N_Move);
+            long temp = Array[j];
+            for (k = j; k >= info.seq[i] && temp < Array[k - info.seq[i]]; k -= info.seq[i]) {
+                Array[k] = Array[k - info.seq[i]];
+                *N_Comp = *N_Comp + 1;
+                *N_Move = *N_Move + 1;
+            }
+            Array[k] = temp;
+            *N_Comp = *N_Comp + 1;
         }
     }
     free(info.seq);
 }
 
-void Insert_Sort(long *Array, int Size, int Start, int Increment, double *N_Comp, double *N_Move) {
-    int i, j;
-    for (i = Start + Increment; i < Size; i += Increment) {
-		long temp = Array[i];
-        for (j = i; j >= Increment && temp < Array[j - Increment]; j -= Increment) {
-            Array[j] = Array[j - Increment];
-            *N_Comp = *N_Comp + 1;
-            *N_Move = *N_Move + 1;
+void Improved_Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move) {
+    sequence_t info = One_N_Seq(Size);
+    int i, j, k;
+    for (i = 0; i < info.size; i++) {
+        for (j = info.seq[i]; j < Size; j++) {
+            for (k = j; k > info.seq[i] && Array[k - info.seq[i]] > Array[k]; k -= info.seq[i]) {
+                *N_Comp              = *N_Comp + 1;
+                *N_Move              = *N_Move + 1;
+                long temp            = Array[k];
+                Array[k]             = Array[k - info.seq[i]];
+                Array[k - info.seq[i]] = temp; 
+            }
         }
-		Array[j] = temp;
-        *N_Comp = *N_Comp + 1;
     }
+	free(info.seq);
 }
 
 sequence_t Two_Three_Seq(int Size) {
@@ -125,61 +128,21 @@ sequence_t One_N_Seq(int Size) {
     return (sequence_t) {.seq = seq, .size = s};
 }
 
-void Improved_Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move) {
-    sequence_t info = One_N_Seq(Size);
-    int i;
-    for (i = 0; i < info.size; i++) {
-        //printf("%d\n", info.seq[i]);
-        Bubble_Sort(Array, Size, info.seq[i] - 1, info.seq[i], N_Comp, N_Move);
-    }
-	free(info.seq);
+void Save_Seq1(char * Filename, int N) {
+    sequence_t info = Two_Three_Seq(N);
+    save_file(Filename, info);
 }
 
+void Save_Seq2(char * Filename, int N) {
+    sequence_t info = One_N_Seq(N);
+    save_file(Filename, info);
+}
 
-/*void Bubble_Sort(long *Array, int Size, int Start, int Increment, double *N_Comp, double *N_Move) {
-    int left_idx  = Start;
-    int right_idx = Size - 1 - Increment;
-
-	int i , j;
-    long temp;
-    bool go_left  = false;
-    while (right_idx > left_idx) {
-        go_left  = !go_left;
-        int pos;
-        int gap = go_left ? Increment: -1 * Increment;
-        for (j = go_left ? left_idx : right_idx; j <= right_idx && j >= left_idx; j += gap) {
-            *N_Comp = *N_Comp + 1;
-            if (Array[j] > Array[j + Increment]) {
-                temp                 = Array[j];
-                Array[j]             = Array[j + Increment];
-                Array[j + Increment] = temp; 
-                *N_Move              = *N_Move + Increment;
-                pos                  = j;
-            }
-        }
-        if (go_left) {
-            right_idx = pos - Increment;
-        }
-        else {
-            left_idx = pos + Increment; 
-        }
+void save_file(char * Filename, sequence_t info) {
+    FILE * fp = fopen(Filename, "w");
+    int i;
+    for (i = 0; i < info.size; i++) {
+        fprintf(fp, "%d\n", info.seq[i]);
     }
-}*/
-void Bubble_Sort(long *Array, int Size, int Start, int Increment, double *N_Comp, double *N_Move) {
-	int i, j;
-	int pos = Size - 1 - Increment;;
-	while (pos != -1) {
-		int p = -1;
-		for (j = Start; j <= pos; j += Increment) {
-			*N_Comp = *N_Comp + 1;
-			if (Array[j] > Array[j + Increment]) {
-				long temp            = Array[j];
-				Array[j]             = Array[j + Increment];
-				Array[j + Increment] = temp; 
-				p                    = j;
-				*N_Move              = *N_Move + 1;
-			}
-		}
-		pos = p;
-	}
+    fclose(fp);
 }
