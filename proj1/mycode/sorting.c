@@ -65,21 +65,21 @@ void Shell_Insertion_Sort(long *Array, int Size, double *N_Comp, double *N_Move)
     FCK_Two_Three_Seq(&seq, &seq_size);
 
     int i, j, k;
+    long gap, temp, prev_element;
     for (i = 0; i < seq_size; i++) {
-		long gap = seq[i];
+		gap = seq[i];
         for (j = gap; j < Size; j++) {
-            long temp = Array[j];
-			long prev_element;
+            temp = Array[j];
             for (k = j; k >= gap && temp < (prev_element = Array[k - gap]); k -= gap) {
                 Array[k] = prev_element;
-                local_comp = local_comp + 1;
-                local_move = local_move + 1;
+                local_move = local_move + 1; 
             }
             Array[k] = temp;
             local_comp = local_comp + 1;
         }
     }
 
+    local_comp = local_comp + local_move;
 	*N_Comp += local_comp;
 	*N_Move += local_move;
 
@@ -91,19 +91,21 @@ void Improved_Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move)
 	double local_move = 0.0;
     sequence_t info = One_N_Seq(Size);
     int i, j, k;
+    int gap;
+	long temp;
+    long temp_mgap;
     for (i = 0; i < info.size; i++) {
-		int gap = info.seq[i];
+		gap = info.seq[i];
         for (j = gap; j < Size; j++) {
-			long temp;
-            for (k = j; k > gap && Array[k - gap] > (temp = Array[k]); k -= gap) {
-                local_comp = local_comp + 1;
+            for (k = j; k > gap && (temp_mgap = Array[k - gap]) > (temp = Array[k]); k -= gap) {
                 local_move = local_move + 1;
-                Array[k]       = Array[k - gap];
+                Array[k]       = temp_mgap;
                 Array[k - gap] = temp; 
             }
 			local_comp = local_comp + 1;
         }
     }
+    local_comp = local_comp + local_move;
 	*N_Comp += local_comp;
 	*N_Move += local_move;
 	free(info.seq);
