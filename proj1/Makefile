@@ -3,9 +3,9 @@ C_FLAG=-Werror -Wall -O3
 
 SRC=mycode/sorting.c
 
-MAIN=\
-	sorting_main.c \
-	#test_main.c\
+MAIN=sorting_main.c
+
+TEST=test_main.c
 
 OTHER=mycode/sequence.py
 
@@ -16,6 +16,10 @@ LOGFILE=$(LOGPATH)/$(shell date --iso=seconds)
 
 $(NAME):
 	$(CC) $(CFLAG) $(SRC) $(MAIN) -o $(NAME) -I mycode
+
+test:
+	$(CC) $(CFLAG) $(SRC) $(TEST) -o $(NAME) -I mycode
+
 
 rand:
 	random_file output_filename num_of_integers random_seed
