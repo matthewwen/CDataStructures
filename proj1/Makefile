@@ -19,14 +19,14 @@ $(NAME):
 	$(CC) $(CFLAG) $(SRC) $(MAIN) -o $(NAME) -I mycode
 
 test:
-	$(CC) $(CFLAG) $(SRC) $(TEST) -o $(NAME) -I mycode
+	$(CC) $(CFLAG) $(SRC) $(TEST) -o test -I mycode
 
 
 rand:
 	random_file output_filename num_of_integers random_seed
 
 clean:
-	rm -rf $(NAME)
+	rm -rf $(NAME) test
 
 add:
 	git add $(SRC) $(OTHER) $(MAIN) $(HEADER) $(PDF) Makefile
