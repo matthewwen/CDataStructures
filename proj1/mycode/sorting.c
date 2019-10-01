@@ -36,13 +36,14 @@ long *Load_File(char * Filename, int * Size) {
 }
 
 int Save_File(char *Filename, long *Array, int Size) {
-    FILE * fp = fopen(Filename, "w+");
+    FILE * fp = fopen(Filename, "w");
     int i;
     fprintf(fp, "%d\n", Size);
     for (i = 0; i < Size; i++) {
         fprintf(fp, "%ld\n", Array[i]);
     }
     fclose(fp);
+	return i;
 }
 
 void Shell_Insertion_Sort(long *Array, int Size, double *N_Comp, double *N_Move) {
