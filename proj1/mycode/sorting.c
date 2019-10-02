@@ -5,6 +5,7 @@
 #include <limits.h>
 #include <stdint.h>
 #include "sorting.h"
+#include <assert.h>
 
 typedef struct{
     int * seq;
@@ -60,90 +61,47 @@ void Shell_Insertion_Sort(long *Array, int Size, double *N_Comp, double *N_Move)
 	double local_comp = 0.0;
 	double local_move = 0.0;
 
-	int * seq = NULL;
-	int seq_size = Size;
-    FCK_Two_Three_Seq(&seq, &seq_size);
-
-    int i, j, k;
-    long gap, temp, prev_element;
-    for (i = 0; i < seq_size; i++) {
-		gap = seq[i];
-        for (j = gap; j < Size; j++) {
-            temp = Array[j];
-            for (k = j; k >= gap && temp < (prev_element = Array[k - gap]); k -= gap) {
-                Array[k] = prev_element;
-                local_move = local_move + 1; 
-            }
-            Array[k] = temp;
-        }
-        local_comp = local_comp + Size - gap + 1;
-    }
-
-    local_comp = local_comp + local_move;
-	*N_Comp += local_comp;
-	*N_Move += local_move;
-
-    free(seq);
-}
-
-void Improved_Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move) {
-	double local_comp = 0.0;
-	double local_move = 0.0;
-    sequence_t info = One_N_Seq(Size);
-    int i, j, k;
-    int gap;
-	long temp, temp_mgap;
-    for (i = 0; i < info.size; i++) {
-		gap = info.seq[i];
-        for (j = gap; j < Size; j++) {
-            for (k = j; k > gap && (temp_mgap = Array[k - gap]) > (temp = Array[k]); k -= gap) {
-                local_move = local_move + 1;
-                Array[k]       = temp_mgap;
-                Array[k - gap] = temp; 
-            }
-        }
-		local_comp = local_comp + Size - gap + 1;
-    }
-    local_comp = local_comp + local_move;
-	*N_Comp += local_comp;
-	*N_Move += local_move;
-	free(info.seq);
-}
-
-void FCK_Two_Three_Seq(int ** s, int * N) {
     int degree = 0;
-	int Size = *N;
-
-    int i, j;
+    int i, j, k;
     for(i = 1; i * 3 < Size && ++degree; i *= 3){}
     int * seq_carrier = malloc((degree + 1) * sizeof(*seq_carrier));
 
     int two_mult = 1;
-    int num_seq  = degree + 1;
-    int num_two  = 0;
     for (j = degree; i > 0; i /= 3) {
         seq_carrier[j] = i * two_mult;
         for(;seq_carrier[j] * 2 < Size; seq_carrier[j] *= 2){
             two_mult *= 2;
-            num_two++;
         }
-		num_seq += num_two;
         j--;
     }
 
-    int * seq = malloc(num_seq * sizeof(*seq));
 	int last_idx = degree;
-    for (i = 0; i < num_seq; i++) {
-        int max_idx = 0;
-		long max_value = seq_carrier[max_idx];
-        for (j = 1; j <= last_idx; j++) {
-			long temp;
-            if (seq_carrier[j] != -1 && max_idx < (temp = seq_carrier[j])) {
-                max_idx = j;
-				max_value = temp;
-            }
-        }
-        seq[i] = max_value;
+    int max_idx;
+	long gap;
+	long gtemp, etemp;
+	while (last_idx >= 0) {
+		// Get's Next Value in Sequence
+		max_idx = 0;
+		gap     = seq_carrier[max_idx];
+		for (i = 0; i <= last_idx; i++) {
+			if (gap < (gtemp = seq_carrier[i])) {
+				gap     = seq_carrier[i];
+				max_idx = i;
+			}
+		}
+
+		// Peforms insertion
+		for (j = gap; j < Size; j++) {
+			etemp = Array[j];
+			for (k = j; k >= gap && etemp <  Array[k - gap]; k -= gap) {
+				Array[k] = Array[k-gap];
+				local_move = local_move + 1; 
+			}
+			Array[k] = etemp;
+		}
+		local_comp = local_comp + Size - gap + 1;
+		
+		// Update the Seq Carrier
 		if (seq_carrier[max_idx] % 2 != 0) {
 			seq_carrier[max_idx] = seq_carrier[last_idx];
 			last_idx--;
@@ -151,12 +109,40 @@ void FCK_Two_Three_Seq(int ** s, int * N) {
 		else {
 			seq_carrier[max_idx] /= 2;
 		}
+	}
+
+	free(seq_carrier);
+    local_comp = local_comp + local_move;
+	*N_Comp += local_comp;
+	*N_Move += local_move;
+
+}
+
+void Improved_Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move) {
+	double local_comp = 0.0;
+	double local_move = 0.0;
+    sequence_t info = One_N_Seq(Size);
+    int j, k;
+	long temp, temp_mgap;
+	int gap = Size;
+    while (gap > 0) {
+		if (gap == 10 || gap == 9) {
+			gap = 11;
+		}
+        for (j = gap; j < Size; j++) {
+            for (k = j; k >= gap && (temp_mgap = Array[k - gap]) > (temp = Array[k]); k -= gap) {
+                local_move = local_move + 1;
+                Array[k]       = temp_mgap;
+                Array[k - gap] = temp; 
+            }
+        }
+		local_comp = local_comp + Size - gap + 1;
+		gap = gap / 1.3;
     }
-    
-   free(seq_carrier);
-   *s = seq;
-   *N = num_seq;
-   //return (sequence_t) {.seq = seq, .size = num_seq};
+    local_comp = local_comp + local_move;
+	*N_Comp += local_comp;
+	*N_Move += local_move;
+	free(info.seq);
 }
 
 sequence_t Two_Three_Seq(int Size) {

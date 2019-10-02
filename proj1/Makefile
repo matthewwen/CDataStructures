@@ -1,5 +1,5 @@
 NAME=proj1
-C_FLAG=-Werror -Wall -O3
+CFLAG= -Werror -Wall -O3
 
 SRC=mycode/sorting.c
 
