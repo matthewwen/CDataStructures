@@ -145,49 +145,39 @@ void Improved_Bubble_Sort(long *Array, int Size, double *N_Comp, double *N_Move)
 
 sequence_t Two_Three_Seq(int Size) {
 	int degree = 0;
-	
-	int i, j;
-	for(i = 1; i * 3 < Size && ++degree; i *= 3) {}
-	int * seq_carrier = malloc((degree + 1) * sizeof(*seq_carrier));
 
-	int two_mult = 1;
-	int num_seq  = degree + 1;
-	int num_two  = 0;
-	for (j = degree; i > 0; i /= 3) {
-		seq_carrier[j] = i * two_mult; 
-		for (;seq_carrier[j] * 2 < Size; seq_carrier[j] *= 2) {
-			two_mult *= 2;
-			num_two++;
-		}
-		num_seq += num_two;
-		j--;
-	}
+    int i, j;
+    for(i = 1; i * 3 < Size && ++degree; i *= 3){}
+    int * seq_carrier = malloc((degree + 1) * sizeof(*seq_carrier));
 
-	int * seq = malloc(num_seq * sizeof(*seq));
-	int last_idx = degree;
-	for (i = 0; i < num_seq; i++) {
-		int max_idx = 0;
-		long max_value = seq_carrier[max_idx];	
-		for (j = 1; j <= last_idx; j++) {
-			long temp;
-			if (seq_carrier[j] != -1 && max_idx < (temp = seq_carrier[j])) {
-				max_idx = j;
-				max_value = temp;
-			}
-		}
-		seq[i] = max_value;
-		if (seq_carrier[max_idx] % 2 != 0) {
-			seq_carrier[max_idx] = seq_carrier[last_idx];
-			last_idx--;
-		}
-		else {
-			seq_carrier[max_idx] /= 2;
-		}
-	}
-	free(seq_carrier);
+    int two_mult = 1;
+    int num_seq  = degree + 1;
+    int num_two  = 0;
+    for (j = degree; i > 0; i /= 3) {
+        seq_carrier[j] = i * two_mult;
+        num_seq += num_two;
+        for(;seq_carrier[j] * 2 < Size; seq_carrier[j] *= 2){
+            two_mult *= 2;
+            num_two++;
+            num_seq++;
+        }
+        j--;
+    }
 
-	return (sequence_t) {.seq = seq, .size = num_seq};
-
+    int * seq = malloc(num_seq * sizeof(*seq));
+    for (i = 0; i < num_seq; i++) {
+        int max_idx = 0;
+        for (j = 1; j <= degree; j++) {
+            if (seq_carrier[j] != -1 && seq_carrier[max_idx] < seq_carrier[j]) {
+                max_idx = j;
+            }
+        }
+        seq[i] = seq_carrier[max_idx];
+        seq_carrier[max_idx] = seq_carrier[max_idx] % 2 != 0 ? -1 : seq_carrier[max_idx] / 2;
+    }
+    
+   free(seq_carrier);
+   return (sequence_t) {.seq = seq, .size = num_seq};
 }
 
 sequence_t One_N_Seq(int Size) {
@@ -215,7 +205,7 @@ void Save_Seq1(char * Filename, int N) {
 	FILE * fp = fopen(Filename, "w");
 	int i;
 	fprintf(fp, "%d\n", info.size);
-	for (i = info.size - 1; i >= 0; i--) {
+	for (i = 0; i < info.size; i++) {
 		fprintf(fp, "%d\n", info.seq[i]);
 	}
 	free(info.seq);
