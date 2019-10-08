@@ -5,6 +5,7 @@ CFLAG= -Werror -Wall -O3
 
 HUFF_MAIN=mycode/huff.c
 UNHUFF_MAIN=mycode/unhuff.c
+HEADER=mycode/huff.h
 
 FOLDER=ece368-project2
 
@@ -17,10 +18,10 @@ SAMPLE=sample/*
 LOGFILE=$(LOGPATH)/$(shell date --iso=seconds) 
 
 $(HUFFNAME):
-	$(CC) $(CFLAG) $(HUFF_MAIN) -o $(HUFFNAME)
+	$(CC) $(CFLAG) $(HUFF_MAIN) -o $(HUFFNAME) -I mycode
 
 $(UNHUFFNAME):
-	$(CC) $(CFLAG) $(UNHUFF_MAIN) -o $(UNHUFFNAME) 
+	$(CC) $(CFLAG) $(UNHUFF_MAIN) -o $(UNHUFFNAME) -I mycode
 
 clean:
 	rm -rf $(HUFFNAME) $(UNHUFFNAME) $(FOLDER)
@@ -35,7 +36,7 @@ ms1submit:
 
 finalsubmit:
 	mkdir $(FOLDER)
-	cp $(HUFF_MAIN) $(UNHUFF_MAIN) $(FOLDER) 
+	cp $(HUFF_MAIN) $(UNHUFF_MAIN) $(HEADER) $(FOLDER) 
 	#cp $(PDF) $(FOLDER)
 	make $(HUFFNAME)
 	make $(UNHUFFNAME)
