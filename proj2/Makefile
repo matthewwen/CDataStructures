@@ -6,6 +6,8 @@ CFLAG= -Werror -Wall -O3
 HUFF_MAIN=mycode/huff.c
 UNHUFF_MAIN=mycode/unhuff.c
 
+FOLDER=ece368-project2
+
 PDF=
 #ms2.pdf \
 	report.pdf
@@ -21,7 +23,7 @@ $(UNHUFFNAME):
 	$(CC) $(CFLAG) $(UNHUFF_MAIN) -o $(UNHUFFNAME) 
 
 clean:
-	rm -rf $(HUFFNAME) $(UNHUFFNAME)
+	rm -rf $(HUFFNAME) $(UNHUFFNAME) $(FOLDER)
 
 add:
 	git add $(HUFF_MAIN) $(UNHUFF_MAIN) $(PDF) $(SAMPLE) Makefile
@@ -32,4 +34,10 @@ ms1submit:
 	turnin -c ece368 -p proj2ms1 ms1.pdf
 
 finalsubmit:
-	turnin -c ece368 -p proj2 report.pdf
+	mkdir $(FOLDER)
+	cp $(HUFF_MAIN) $(UNHUFF_MAIN) $(FOLDER) 
+	#cp $(PDF) $(FOLDER)
+	make $(HUFFNAME)
+	make $(UNHUFFNAME)
+	mv $(HUFFNAME) $(UNHUFFNAME) $(FOLDER)
+	turnin -c ece368 -p proj2 $(FOLDER)
