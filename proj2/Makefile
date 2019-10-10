@@ -9,9 +9,8 @@ HEADER=mycode/huff.h
 
 FOLDER=ece368-project2
 
-PDF=
-#ms2.pdf \
-	report.pdf
+PDF=ms1.pdf
+	#report.pdf
 
 SAMPLE=sample/*
 
