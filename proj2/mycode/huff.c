@@ -4,6 +4,8 @@
 #include <string.h>
 #include "huff.h"
 
+int _leaf_cmp(const void * p, const void * q);
+
 header_t * create_table(FILE * fp) {
 	size_t memory_size;
 	header_t * header = malloc((memory_size = sizeof(*header)));
@@ -16,6 +18,13 @@ header_t * create_table(FILE * fp) {
 	}
 
 	return header;
+}
+
+int _leaf_cmp(const void * p, const void * q) {
+	const node_t * left = p;	
+	const node_t * right = q;
+
+	return left->data.value.occurance - right->data.value.occurance;
 }
 
 node_t * create_tree(header_t * header) {
@@ -33,6 +42,8 @@ node_t * create_tree(header_t * header) {
 			data->value.value = i;
 		}
 	}
+
+	qsort(header->nodes, buffer_end, sizeof(*header->nodes), _leaf_cmp);
 
 	for (i = 0; i < buffer_end; i++) {
 		printf("val: %c, occurance: %d\n", header->nodes[i].data.value.value, header->nodes[i].data.value.occurance);
