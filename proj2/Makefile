@@ -6,7 +6,7 @@ CFLAG= -Werror -Wall -O3 -std=c99 -std=gnu99
 HUFF_MAIN=mycode/huff.c
 UNHUFF_MAIN=mycode/unhuff.c
 HEADER=mycode/huff.h
-
+TXT=example.txt
 INCLUDE=mycode/huff.h
 
 FOLDER=ece368-project2
@@ -28,7 +28,7 @@ clean:
 	rm -rf $(HUFFNAME) $(UNHUFFNAME) $(FOLDER)
 
 add:
-	git add $(HUFF_MAIN) $(UNHUFF_MAIN) $(PDF) $(SAMPLE) Makefile $(INCLUDE)
+	git add $(HUFF_MAIN) $(UNHUFF_MAIN) $(PDF) $(SAMPLE) Makefile $(INCLUDE) $(TXT)
 	git commit -m "$(LOGFILE)"
 	git push origin master
 
