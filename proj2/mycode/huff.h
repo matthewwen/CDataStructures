@@ -6,20 +6,29 @@
 #include <stdbool.h>
 #include <inttypes.h>
 
-#define NUM_CHAR 256; 
+#define NUM_CHAR 256
+
+typedef union {
+    struct{
+        struct node_t * left;
+        struct node_t * right;
+    }node;
+    struct {
+        char value;
+        int occurance;
+    }value;
+}data_t;
 
 typedef struct node_t{
-    char value;
-    int occurance;
-    struct node_t * left;
-    struct node_t * right;
+    enum {VALUE, NODE} type;
+    data_t data;
 }node_t;
 
 typedef struct{
     uint32_t compressed_size;
     uint32_t header_size;
     uint32_t decompressed_size;
-    node_t   nodes[256];
+    node_t   nodes[NUM_CHAR];
 }header_t;
 
 #endif

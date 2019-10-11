@@ -5,17 +5,40 @@
 #include "huff.h"
 
 header_t * create_table(FILE * fp) {
-	fseek(fp, 0L, SEEK_SET);
 	size_t memory_size;
 	header_t * header = malloc((memory_size = sizeof(*header)));
 	memset(header, 0, memory_size);
-	header->nodes[0] = (node_t) {.left = NULL, .right = NULL};
-	printf("memory size: %ld\n", memory_size);
+
 	int i;
-	for (i = 0; i < 256; i++) {
-		printf("successful = %s\n", header->nodes[i].left == NULL ? "yes": "no");
+	fseek(fp, 0L, SEEK_SET);
+	while ((i = fgetc(fp)) != EOF) {
+		header->nodes[i].data.value.occurance += 1;
 	}
+
 	return header;
+}
+
+node_t * create_tree(header_t * header) {
+	int i;
+	data_t * data;
+	int buffer_end = NUM_CHAR - 1;
+	for (i = 0; i < buffer_end; i++) {
+		data = &(header->nodes[i].data);
+		if (data->value.occurance == 0) {
+			*data             = header->nodes[buffer_end].data;
+			data->value.value = buffer_end--;
+			i--;
+		}
+		else if (data->value.value == 0) {
+			data->value.value = i;
+		}
+	}
+
+	for (i = 0; i < buffer_end; i++) {
+		printf("val: %c, occurance: %d\n", header->nodes[i].data.value.value, header->nodes[i].data.value.occurance);
+	}
+
+	return NULL;
 }
 
 int main(int argc, char* argv[]) {
@@ -25,6 +48,7 @@ int main(int argc, char* argv[]) {
 		printf("valid input");
 		FILE * fp = fopen("example.txt", "r");
 		header_t * h = create_table(fp);
+		create_tree(h);
 		free(h);
 		fclose(fp);
 	}
