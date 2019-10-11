@@ -7,6 +7,8 @@ HUFF_MAIN=mycode/huff.c
 UNHUFF_MAIN=mycode/unhuff.c
 HEADER=mycode/huff.h
 
+INCLUDE=mycode/huff.h
+
 FOLDER=ece368-project2
 
 PDF=ms1.pdf
@@ -26,7 +28,7 @@ clean:
 	rm -rf $(HUFFNAME) $(UNHUFFNAME) $(FOLDER)
 
 add:
-	git add $(HUFF_MAIN) $(UNHUFF_MAIN) $(PDF) $(SAMPLE) Makefile
+	git add $(HUFF_MAIN) $(UNHUFF_MAIN) $(PDF) $(SAMPLE) Makefile $(INCLUDE)
 	git commit -m "$(LOGFILE)"
 	git push origin master
 
