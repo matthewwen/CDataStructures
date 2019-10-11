@@ -11,7 +11,8 @@ header_t * create_table(FILE * fp) {
 	memset(header, 0, memory_size);
 	header->nodes[0] = (node_t) {.left = NULL, .right = NULL};
 	printf("memory size: %ld\n", memory_size);
-	for (int i = 0; i < 256; i++) {
+	int i;
+	for (i = 0; i < 256; i++) {
 		printf("successful = %s\n", header->nodes[i].left == NULL ? "yes": "no");
 	}
 	return header;
@@ -20,9 +21,6 @@ header_t * create_table(FILE * fp) {
 int main(int argc, char* argv[]) {
 	bool input_valid = false;
 		
-	for (int i = 0; i < argc; i++) {
-		printf("%s\n", argv[i]);
-	}
 	if ((input_valid = (argc == 2))) {
 		printf("valid input");
 		FILE * fp = fopen("example.txt", "r");
