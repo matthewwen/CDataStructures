@@ -43,10 +43,33 @@ node_t * create_tree(header_t * header) {
 		}
 	}
 
-	qsort(header->nodes, buffer_end, sizeof(*header->nodes), _leaf_cmp);
+	/*qsort(header->nodes, buffer_end, sizeof(*header->nodes), _leaf_cmp);
 
 	for (i = 0; i < buffer_end; i++) {
 		printf("val: %c, occurance: %d\n", header->nodes[i].data.value.value, header->nodes[i].data.value.occurance);
+	}*/
+
+	//int start   = 0;
+	for (i = 0; i < buffer_end; i+=2) {
+		int j;
+		int minidx  = i;
+		int min1idx = i + 1;
+		data_t min     = header->nodes[minidx].data;
+		data_t min1    = header->nodes[min1idx].data;
+		for (j = i; j < buffer_end; j++) {
+			data_t value = header->nodes[j].data;
+			if (value.value.occurance < min.value.occurance) {
+				minidx = j;
+				min    = value;
+			}
+			else if (value.value.occurance < min1.value.occurance) {
+				min1idx = j;
+				min1    = value;
+			}
+		}
+		header->nodes[minidx].data  = header->nodes[i].data;
+		header->nodes[min1idx].data = header->nodes[i + 1].data;
+
 	}
 
 	return NULL;

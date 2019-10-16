@@ -8,18 +8,24 @@
 
 #define NUM_CHAR 256
 
-typedef union {
-    struct{
-        struct node_t * left;
-        struct node_t * right;
-    }node;
-    struct {
-        char value;
-        int occurance;
-    }value;
+
+typedef struct{
+    char value;
+    int   weight;
+}value_t;
+
+typedef struct i_t{
+    int weight;
+    struct i_t * left;
+    struct i_t * right;
+}i_t;
+
+typedef union{
+    node_t  node;
+    value_t value;
 }data_t;
 
-typedef struct node_t{
+typedef struct{
     enum {VALUE, NODE} type;
     data_t data;
 }node_t;
@@ -28,7 +34,7 @@ typedef struct{
     uint32_t compressed_size;
     uint32_t header_size;
     uint32_t decompressed_size;
-    node_t   nodes[NUM_CHAR];
+    data_t   nodes[NUM_CHAR];
 }header_t;
 
 #endif
