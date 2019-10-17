@@ -10,7 +10,7 @@
 
 
 typedef struct{
-    char value;
+    char  value;
     int   weight;
 }value_t;
 
@@ -21,7 +21,7 @@ typedef struct i_t{
 }i_t;
 
 typedef union{
-    node_t  node;
+    i_t  intrsect;
     value_t value;
 }data_t;
 
@@ -34,7 +34,7 @@ typedef struct{
     uint32_t compressed_size;
     uint32_t header_size;
     uint32_t decompressed_size;
-    data_t   nodes[NUM_CHAR];
+    value_t  values[NUM_CHAR];
 }header_t;
 
 #endif
