@@ -12,20 +12,23 @@
 typedef struct{
     char  value;
     int   weight;
+    uint32_t loc;
 }value_t;
+
+struct node_t;
 
 typedef struct i_t{
     int weight;
-    struct i_t * left;
-    struct i_t * right;
+    struct node_t * left;
+    struct node_t * right;
 }i_t;
 
 typedef union{
-    i_t  intrsect;
-    value_t value;
+    struct i_t intrsect;
+    value_t * value;
 }data_t;
 
-typedef struct{
+typedef struct node_t{
     enum {VALUE, NODE} type;
     data_t data;
 }node_t;

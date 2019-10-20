@@ -1,7 +1,7 @@
 HUFFNAME=huff
 UNHUFFNAME=unhuff
 
-CFLAG= -Werror -Wall -O3 -std=c99 -std=gnu99
+CFLAG= -Werror -Wall -O3 -std=c99 -std=gnu99 -g
 
 HUFF_MAIN=mycode/huff.c
 UNHUFF_MAIN=mycode/unhuff.c
@@ -20,6 +20,8 @@ LOGFILE=$(LOGPATH)/$(shell date --iso=seconds)
 
 $(HUFFNAME):
 	$(CC) $(CFLAG) $(HUFF_MAIN) -o $(HUFFNAME) -I mycode
+test:
+	gdb ./$(HUFFNAME) $(TXT)
 
 $(UNHUFFNAME):
 	$(CC) $(CFLAG) $(UNHUFF_MAIN) -o $(UNHUFFNAME) -I mycode

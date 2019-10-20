@@ -18,56 +18,57 @@ header_t * create_table(FILE * fp) {
 	return header;
 }
 
-node_t * create_tree(header_t * header) {
-	int i;
-	int buffer_end = NUM_CHAR - 1;
-	value_t * value;
-	for (i = 0; i < buffer_end; i++) {
-		value = &(header->values[i]);
-		if (value->weight == 0) {
-			*value       = header->values[buffer_end];
-			value->value = buffer_end--;
-			i--;
+void append_tree(node_t ** a_node, value_t * value) {
+	// create new node
+	node_t * l_node = malloc(sizeof(*l_node));
+	l_node->type    = VALUE;
+	l_node->data    = (data_t) {.value = value};
+	
+	// copy address of a_node
+	node_t * cp_node = *a_node;
+	value_t * cp_value;
+	i_t     * cp_i;
+
+	if (cp_node == NULL) {
+		// create a new node
+		(*a_node) = l_node;
+	}
+	else if (cp_node->type == VALUE && (cp_value = cp_node->data.value)) {
+		// split node into an intersection
+		node_t * i_node = malloc(sizeof(*i_node));
+		i_node->type    = NODE;
+		int cp_weight, curr_weight;
+		i_node->data.intrsect.weight = (cp_weight = cp_value->weight) + (curr_weight = value->weight);
+		bool left_cp = cp_weight > curr_weight;
+		i_node->data.intrsect.left  = left_cp ? cp_node: l_node;
+		i_node->data.intrsect.right = left_cp ? l_node : cp_node;
+		*a_node = i_node;
+	}
+	else if (cp_node->type == NODE && (cp_i = &cp_node->data.intrsect)) {
+		// recursively go left or right
+		if (cp_i->weight < value->weight) {
+			append_tree(&cp_i->left, value);
 		}
-		else if (value->value == 0) {
-			value->value = i;
+		else {
+			append_tree(&cp_i->right, value);
 		}
 	}
-
-	for (i = 0; i < buffer_end; i+= 2) {
-		int j;
-		int minidx  = i;
-		int min1idx = i + 1;
-		value_t min     = header->values[minidx];
-		value_t min1    = header->values[min1idx];
-		for (j = i; j < buffer_end; j++) {
-			value_t value = header->values[j];
-			if (value.weight < min.weight) {
-				minidx = j;
-				min    = value;
-			}
-			else if (value.weight < min1.weight) {
-				min1idx = j;
-				min1    = value;
-			}
-		}
-		header->values[minidx]  = header->values[i];
-		header->values[min1idx] = header->values[i + 1];
-		printf("weight: %d\n", min.weight + min1.weight);
-	}
-
-	printf("i: %d, buffer_end: %d\n", i, buffer_end);
-
-	return NULL;
 }
 
 int main(int argc, char* argv[]) {
 	bool input_valid = false;
+	int i;
+	node_t * head = NULL;
 		
 	if ((input_valid = (argc == 2))) {
 		FILE * fp = fopen("example.txt", "r");
 		header_t * h = create_table(fp);
-		create_tree(h);
+		for (i = 0; i < NUM_CHAR; i++) {
+			value_t * v = &h->values[i];
+			if (v->weight > 0) {
+				append_tree(&head, v);
+			}
+		}
 		free(h);
 		fclose(fp);
 	}
