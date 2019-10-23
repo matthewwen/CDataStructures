@@ -104,9 +104,9 @@ void free_tree(node_t ** head) {
 	node_t * cp_head = *head;
 	if (cp_head != NULL) {
 		data_t * cp_data = &(*head)->data;
-		free_tree(&cp_data->i->left);
-		free_tree(&cp_data->i->right);
 		if (cp_head->type == NODE) {
+			free_tree(&cp_data->i->left);
+			free_tree(&cp_data->i->right);
 			free(cp_data->i);
 		}
 		free(cp_head);
