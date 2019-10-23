@@ -30,6 +30,7 @@ typedef union{
 
 typedef struct node_t{
     enum {VALUE, NODE} type;
+    bool is_leaf;
     data_t data;
 }node_t;
 
