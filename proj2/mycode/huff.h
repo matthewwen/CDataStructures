@@ -24,7 +24,7 @@ typedef struct i_t{
 }i_t;
 
 typedef union{
-    struct i_t intrsect;
+    i_t * i;
     value_t * value;
 }data_t;
 

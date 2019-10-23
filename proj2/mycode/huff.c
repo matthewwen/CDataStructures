@@ -4,6 +4,8 @@
 #include <string.h>
 #include "huff.h"
 
+void f_test(header_t * head);
+
 header_t * create_table(FILE * fp) {
 	size_t memory_size;
 	header_t * header = malloc((memory_size = sizeof(*header)));
@@ -18,57 +20,64 @@ header_t * create_table(FILE * fp) {
 	return header;
 }
 
-void append_tree(node_t ** a_node, value_t * value) {
-	// create new node
-	node_t * l_node = malloc(sizeof(*l_node));
-	l_node->type    = VALUE;
-	l_node->data    = (data_t) {.value = value};
-	
-	// copy address of a_node
-	node_t * cp_node = *a_node;
-	value_t * cp_value;
-	i_t     * cp_i;
+void append_tree(node_t ** a_node, i_t * i_node) {
+	node_t * cp_node = &a_node;
 
 	if (cp_node == NULL) {
-		// create a new node
-		(*a_node) = l_node;
+		cp_node  = malloc(sizeof(*cp_node));
+		*cp_node = (node_t) {.type = NODE, .data = (data_t) {.i = i_node}};
+		*a_node  = &cp_node;
 	}
-	else if (cp_node->type == VALUE && (cp_value = cp_node->data.value)) {
-		// split node into an intersection
-		node_t * i_node = malloc(sizeof(*i_node));
-		i_node->type    = NODE;
-		int cp_weight, curr_weight;
-		i_node->data.intrsect.weight = (cp_weight = cp_value->weight) + (curr_weight = value->weight);
-		bool left_cp = cp_weight > curr_weight;
-		i_node->data.intrsect.left  = left_cp ? cp_node: l_node;
-		i_node->data.intrsect.right = left_cp ? l_node : cp_node;
-		*a_node = i_node;
-	}
-	else if (cp_node->type == NODE && (cp_i = &cp_node->data.intrsect)) {
-		// recursively go left or right
-		if (cp_i->weight < value->weight) {
-			append_tree(&cp_i->left, value);
+	else if (cp_node->type == NODE) {
+		if (cp_node->data.i->weight < i_node->weight) {
+			append_tree(&(*a_node)->data.i->left, i_node);
 		}
 		else {
-			append_tree(&cp_i->right, value);
+			append_tree(&(*a_node)->data.i->right, i_node);
+
+		}
+		(*a_node)->data.i->weight += i_node->weight;
+	}
+}
+
+void f_test(header_t * head) {
+	// perform insertion, sort in decending order
+	value_t * order_list[NUM_CHAR];
+	int last_pos = 0;
+	int i;
+	int j;
+
+	value_t * pos;
+	for (i = 0; i < NUM_CHAR; i++) {
+		if ((pos = &head->values[i])->weight != 0) {
+			pos->value = i;
+			for (j = last_pos; j > 0 && order_list[j - 1]->weight < pos->weight; j--) {
+				order_list[j] = order_list[j - 1];
+			}
+			order_list[j] = pos;
+			last_pos++;
 		}
 	}
+
+	for (i = 0; i < last_pos; i += 2) {
+		i_t    * i_node = malloc(sizeof(*i_node));
+		node_t * left   = malloc(sizeof(*left));
+		node_t * right  = malloc(sizeof(*right));
+
+		*left  = (node_t) {.type = VALUE, .data = (data_t) {.value = order_list[i]}};
+		*right = (node_t) {.type = VALUE, .data = (data_t) {.value = order_list[i + 1]}};
+		i_node->weight = order_list[i]->weight + order_list[i + 1]->weight;
+	}
+
 }
 
 int main(int argc, char* argv[]) {
 	bool input_valid = false;
-	int i;
-	node_t * head = NULL;
 		
 	if ((input_valid = (argc == 2))) {
 		FILE * fp = fopen("example.txt", "r");
 		header_t * h = create_table(fp);
-		for (i = 0; i < NUM_CHAR; i++) {
-			value_t * v = &h->values[i];
-			if (v->weight > 0) {
-				append_tree(&head, v);
-			}
-		}
+		f_test(h);
 		free(h);
 		fclose(fp);
 	}
