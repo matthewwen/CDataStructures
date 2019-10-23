@@ -66,6 +66,7 @@ void append_tree(node_t ** a_node, i_t * i_node) {
 	}
 }
 
+void free_tree(node_t ** head);
 void f_test(header_t * head) {
 	// perform insertion, sort in decending order
 	value_t * order_list[NUM_CHAR];
@@ -84,7 +85,7 @@ void f_test(header_t * head) {
 		}
 	}
 
-	for (i = 0; i < last_pos; i += 2) {
+	for (i = 0; i < last_pos - 2; i += 2) {
 		i_t    * i_node = malloc(sizeof(*i_node));
 		node_t * left   = malloc(sizeof(*left));
 		node_t * right  = malloc(sizeof(*right));
@@ -96,7 +97,21 @@ void f_test(header_t * head) {
 		i_node->right  = right;
 		append_tree(&nhead, i_node);
 	}
+	free_tree(&nhead);
+}
 
+void free_tree(node_t ** head) {
+	node_t * cp_head = *head;
+	if (cp_head != NULL) {
+		data_t * cp_data = &(*head)->data;
+		free_tree(&cp_data->i->left);
+		free_tree(&cp_data->i->right);
+		if (cp_head->type == NODE) {
+			free(cp_data->i);
+		}
+		free(cp_head);
+		*head = NULL;
+	}
 }
 
 int main(int argc, char* argv[]) {
