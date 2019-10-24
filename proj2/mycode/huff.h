@@ -7,7 +7,7 @@
 #include <inttypes.h>
 
 #define NUM_CHAR 256
-#define SIG_BIT 
+#define MAX_BIT  (sizeof(uint64_t) * 8)
 
 typedef struct{
     char  value;
