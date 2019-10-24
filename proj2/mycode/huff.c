@@ -1,3 +1,4 @@
+#define _HUFF_C
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -6,80 +7,33 @@
 #include "huff.h"
 
 node_t * f_test(header_t * head);
-void free_tree(node_t ** head);
 void assign_loc(node_t * head, uint64_t loc[2], int size);
-APPEND()
+APPEND_TREE()
+FREE_TREE()
+PUSH_BIT()
+APPEND_BIT()
+
+void tree_fun(node_t * head);
+
+int base(int occ) {
+	int num = 1;
+	return num << occ;
+}
 
 header_t * create_table(FILE * fp) {
 	size_t memory_size;
 	header_t * header = malloc((memory_size = sizeof(*header)));
 	memset(header, 0, memory_size);
 
-	int i;
+	char i;
 	fseek(fp, 0L, SEEK_SET);
-	while ((i = fgetc(fp)) != EOF) {
-		header->values[i].weight += 1;
+	while (((i = fgetc(fp)) != EOF) && (i != '\n')) {
+		printf("character: %c, idx: %d\n", i, i);
+		header->values[(unsigned int) i].weight += 1;
 	}
 
 	return header;
 }
-
-/*void append_tree(node_t ** a_node, i_t * i_node) {
-	node_t * n_node, * cp_node = *a_node;
-	i_t    * cp_i;
-
-	int og_w, n_w;
-	bool is_left;
-
-	if (cp_node == NULL) {
-		cp_node  = malloc(sizeof(*cp_node));
-		*cp_node = (node_t) {.type = NODE, .is_leaf = true, .data = (data_t) {.i = i_node}};
-		*a_node  = cp_node;
-	}
-	else if (cp_node->type == NODE) {
-		if (cp_node->is_leaf) {
-			// allocate memory
-			cp_i     = malloc(sizeof(*cp_i));
-			n_node   = malloc(sizeof(*n_node));
-
-			// set up new intersection
-			*cp_i    = (i_t) {.weight = (og_w = cp_node->data.i->weight) + (n_w = i_node->weight)};
-
-			// create node for i_node
-			*n_node  = (node_t) {.type = NODE, .is_leaf = true, .data = (data_t) {.i = i_node}};
-
-			// determine left / right
-			cp_i->left  = (is_left = og_w > n_w) ? *a_node: n_node;
-			cp_i->right = is_left                ?  n_node: *a_node;
-			
-			// reset copy node
-			cp_node  = malloc(sizeof(*cp_node));
-			*cp_node = (node_t) {.type = NODE, .is_leaf = false, .data = (data_t) {.i = cp_i}};
-			*a_node  = cp_node;
-		}
-		else {
-			if (cp_node->data.i->weight < i_node->weight) {
-				append_tree(&(*a_node)->data.i->left, i_node);
-			}
-			else {
-				append_tree(&(*a_node)->data.i->right, i_node);
-
-			}
-			// update the weight
-			(*a_node)->data.i->weight += i_node->weight;
-
-			// flip node of left occurance is greater than right
-			if ((*a_node)->is_leaf == false) {
-				cp_i = (*a_node)->data.i;
-				if (cp_i->left->data.i->weight > cp_i->right->data.i->weight) {
-					node_t * holder = cp_i->right;
-					cp_i->right = cp_i->left;
-					cp_i->left = holder;
-				}
-			}
-		}
-	}
-}*/
 
 node_t * f_test(header_t * head) {
 	// perform insertion, sort in assending order
@@ -90,6 +44,7 @@ node_t * f_test(header_t * head) {
 	value_t * pos;
 	for (i = 0; i < NUM_CHAR; i++) {
 		if ((pos = &head->values[i])->weight != 0) {
+			printf("pos: %d, c: %c\n", i, i);
 			pos->value = i;
 			for (j = last_pos; j > 0 && order_list[j - 1]->weight > pos->weight; j--) {
 				order_list[j] = order_list[j - 1];
@@ -99,6 +54,10 @@ node_t * f_test(header_t * head) {
 		}
 	}
 
+	for (i = 0; i < last_pos; i++) {
+		printf("c: %c\n", order_list[i]->value);
+	}
+
 	// saving inside of header
 	memcpy(head->sorted, order_list, sizeof(order_list));
 	head->buffer_end = last_pos;
@@ -106,7 +65,7 @@ node_t * f_test(header_t * head) {
 	// add element into binary tree
 	i_t * i_node;
 	node_t * left, * right;
-	for (i = 0; i < last_pos - 2; i += 2) {
+	for (i = 0; i < last_pos - 1; i += 2) {
 		i_node = malloc(sizeof(*i_node));
 		left   = malloc(sizeof(*left));
 		right  = malloc(sizeof(*right));
@@ -117,10 +76,14 @@ node_t * f_test(header_t * head) {
 		i_node->left   = left;
 		i_node->right  = right;
 		append_tree(&nhead, i_node);
+		printf("------\n");
+		tree_fun(nhead);
+		printf("------\n");
 	}
 
 	// if odd number of elements is noticed
-	if (i > last_pos - 2) {
+	if (i == (last_pos - 1)) {
+		printf("coverage with odd #\n");
 		left   = malloc(sizeof(*left));
 		i_node = malloc(sizeof(*i_node));
 		*left  = (node_t) {.type = VALUE, .data = (data_t) {.value = order_list[last_pos - 1]}};
@@ -133,20 +96,6 @@ node_t * f_test(header_t * head) {
 	return nhead;
 }
 
-void free_tree(node_t ** head) {
-	node_t * cp_head = *head;
-	if (cp_head != NULL) {
-		data_t * cp_data = &(*head)->data;
-		if (cp_head->type == NODE) {
-			free_tree(&cp_data->i->left);
-			free_tree(&cp_data->i->right);
-			free(cp_data->i);
-		}
-		free(cp_head);
-		*head = NULL;
-	}
-}
-
 void push_front(uint64_t stack[2], int start) {
 	int max_bit = MAX_BIT;
 	for (;start < (max_bit * 2); start++) {
@@ -154,20 +103,6 @@ void push_front(uint64_t stack[2], int start) {
 		stack[1] += (~stack[0]) < (stack[0]) ? 1: 0;
 		stack[0] = stack[0] << 1;
 	}
-}
-
-int push_bit(uint64_t stack[2], int * size) {
-	bool most_sig = (~stack[1]) < (stack[1]);
-	stack[1] = stack[1] << 1;
-	stack[1] += (~stack[0]) < (stack[0]) ? 1: 0;
-	stack[0] = stack[0] << 1;
-	*size -= 1;
-	return most_sig ? 1: 0;
-}
-
-void append(uint64_t * stack, int num) {
-	*stack = *stack << 1;	
-	*stack += num;
 }
 
 void assign_loc(node_t * head, uint64_t loc[2], int size){
@@ -201,19 +136,35 @@ void assign_loc(node_t * head, uint64_t loc[2], int size){
 void write_header(header_t * h, FILE * fp) {
 	int i, w;
 	value_t *v1, *v2;
-	for (i = 0; i < h->buffer_end - 2; i+=2) {
+	for (i = 0; i < h->buffer_end - 1; i+=2) {
 		fputc((v1 = h->sorted[i])->value, fp);
 		fputc((v2 = h->sorted[i + 1])->value, fp);
-		printf("%c, %c\n", v1->value, v2->value);
+		printf("pair: %c, %c\n", v1->value, v2->value);
 		w = v1->weight + v2->weight;
 		fwrite(&w, sizeof(w), 1, fp);
 	}
 
-	if (i > (h->buffer_end - 2)) {
+	if (i == (h->buffer_end - 1)) {
+		printf("coverage with odd #\n");
 		fputc((v1 = h->sorted[h->buffer_end - 1])->value, fp);
 		fputc(0, fp);
 		w = v1->weight;
 		fwrite(&w, sizeof(w), 1, fp);
+	}
+}
+
+void tree_fun(node_t * head) {
+	// pre order
+	if (head->type == VALUE) {
+		printf("value: %c\n", head->data.value->value);
+	}
+	else {
+		printf("left\n");
+		tree_fun(head->data.i->left);
+		printf("back left\n");
+		printf("right\n");
+		tree_fun(head->data.i->right);
+		printf("back right\n");
 	}
 }
 
@@ -231,11 +182,7 @@ int main(int argc, char* argv[]) {
 		// create tree, and table
 		nhead = f_test(h);
 
-		// create new file
-		char * end    = ".huff";
-		char * n_name = malloc((strlen(argv[1]) + strlen(end) + 1) * sizeof(*n_name));
-		strcpy(n_name, argv[1]);
-		strcpy(&n_name[strlen(argv[1])], end);
+		NEW_FILE(n_name, argv[1], ".huff")
 		FILE * write_fp = fopen(n_name, "w");
 
 		// write header into file
@@ -251,11 +198,13 @@ int main(int argc, char* argv[]) {
 		uint64_t buffer = 0;
 		uint64_t idx_loc[2];
 		int buffer_size = 0;
+		printf("i am here");
+		fseek(fp, 0, SEEK_SET);
 		for (;(idx = fgetc(fp)) != EOF;) {
 			value_t value = h->values[idx];
 			int size = value.numbit;
 			memcpy(idx_loc, value.loc, sizeof(idx_loc));
-			for (; size > 0; ) {
+			while (size > 0) {
 				if (buffer_size == MAX_BIT) {
 					fwrite(&buffer, sizeof(buffer), 1, write_fp);
 					buffer = 0, buffer_size = 0;
@@ -263,14 +212,18 @@ int main(int argc, char* argv[]) {
 				append(&buffer, push_bit(idx_loc, &size));
 				buffer_size++;
 			}
-			fwrite(&buffer, sizeof(buffer), 1, write_fp);
 		}
+		printf("size: %d, num: %ld, printing bytes: ", buffer_size, buffer);
+		printf(BYTE_TO_BINARY_PATTERN"\n",BYTE_TO_BINARY(buffer));
+		fwrite(&buffer, sizeof(buffer), 1, write_fp);
+		printf(BYTE_TO_BINARY_PATTERN,BYTE_TO_BINARY(buffer));
 		h->compressed_size = ftell(write_fp);
+		tree_fun(nhead);
 		free_tree(&nhead);
 
 		// edit the header
 		fseek(write_fp, 0L, SEEK_SET);
-		printf("%d %d %d\n", h->compressed_size, h->header_size, h->decompressed_size);
+		printf("%ld %ld %ld\n", h->compressed_size, h->header_size, h->decompressed_size);
 		fwrite(&h->compressed_size, com_size, 1, write_fp);
 		fwrite(&h->header_size, h_size, 1, write_fp);
 		fwrite(&h->decompressed_size, dec_size, 1, write_fp);

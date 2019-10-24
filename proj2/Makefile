@@ -24,6 +24,9 @@ $(HUFFNAME):
 test:
 	./$(HUFFNAME) $(TXT)
 
+test1:
+	./$(UNHUFFNAME) $(TXT).huff
+
 $(UNHUFFNAME):
 	$(CC) $(CFLAG) $(UNHUFF_MAIN) -o $(UNHUFFNAME) -I mycode
 
