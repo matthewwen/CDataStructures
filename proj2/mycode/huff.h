@@ -7,12 +7,13 @@
 #include <inttypes.h>
 
 #define NUM_CHAR 256
-
+#define SIG_BIT 
 
 typedef struct{
     char  value;
     int   weight;
-    uint32_t loc;
+    uint64_t loc[2];
+    int numbit;
 }value_t;
 
 struct node_t;
@@ -39,6 +40,8 @@ typedef struct{
     uint32_t header_size;
     uint32_t decompressed_size;
     value_t  values[NUM_CHAR];
+    value_t * sorted[NUM_CHAR];
+    int buffer_end;
 }header_t;
 
 #endif

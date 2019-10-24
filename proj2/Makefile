@@ -27,7 +27,7 @@ $(UNHUFFNAME):
 	$(CC) $(CFLAG) $(UNHUFF_MAIN) -o $(UNHUFFNAME) -I mycode
 
 clean:
-	rm -rf $(HUFFNAME) $(UNHUFFNAME) $(FOLDER)
+	rm -rf $(HUFFNAME) $(UNHUFFNAME) $(FOLDER) *.huff.*
 
 add:
 	git add $(HUFF_MAIN) $(UNHUFF_MAIN) $(PDF) $(SAMPLE) Makefile $(INCLUDE) $(TXT)
