@@ -163,9 +163,6 @@ int main(int argc, char* argv[]) {
 	bool input_valid = false;
 	node_t * nhead   = NULL;
 
-	uint64_t test = 1;
-	uint64_t okay = ~test;
-	printf("test: %ld, not: %ld\n", test, okay);
 		
 	if ((input_valid = (argc == 2))) {
 		// count occurance
@@ -182,7 +179,10 @@ int main(int argc, char* argv[]) {
 		strcpy(n_name, argv[1]);
 		strcpy(&n_name[strlen(argv[1])], end);
 		FILE * write_fp = fopen(n_name, "w");
-		free(n_name);
+		int val = 1;
+		fwrite(&val, sizeof(int), 1, write_fp);
+		val = 2;
+		fwrite(&val, sizeof(int), 1, write_fp);
 
 		// write header into file
 		free_tree(&nhead);
@@ -191,6 +191,19 @@ int main(int argc, char* argv[]) {
 		fclose(write_fp);
 		fclose(fp);
 		free(h);
+
+
+		// testing to see how to read
+		FILE * read_fp = fopen(n_name, "r");
+		int result = fread(&val, sizeof(int), 1, read_fp);
+		printf("val: %d\n", val);
+		result = fread(&val, sizeof(int), 1, read_fp);
+		printf("val: %d\n", val);
+		fclose(read_fp);
+		if (result) {
+			printf("what u going to do about it??\n");
+		}
+		free(n_name);
 	}
 	return input_valid ? EXIT_SUCCESS: EXIT_FAILURE;
 }
