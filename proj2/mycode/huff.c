@@ -8,6 +8,7 @@
 node_t * f_test(header_t * head);
 void free_tree(node_t ** head);
 void assign_loc(node_t * head, uint64_t loc[2], int size);
+APPEND()
 
 header_t * create_table(FILE * fp) {
 	size_t memory_size;
@@ -23,7 +24,7 @@ header_t * create_table(FILE * fp) {
 	return header;
 }
 
-void append_tree(node_t ** a_node, i_t * i_node) {
+/*void append_tree(node_t ** a_node, i_t * i_node) {
 	node_t * n_node, * cp_node = *a_node;
 	i_t    * cp_i;
 
@@ -78,7 +79,7 @@ void append_tree(node_t ** a_node, i_t * i_node) {
 			}
 		}
 	}
-}
+}*/
 
 node_t * f_test(header_t * head) {
 	// perform insertion, sort in assending order
@@ -220,11 +221,6 @@ int main(int argc, char* argv[]) {
 	bool input_valid = false;
 	node_t * nhead   = NULL;
 
-	FILE * bb = fopen("bb.txt", "w");
-	int val = 'a';
-	fputc(val, bb);
-	fclose(bb);
-
 	if ((input_valid = (argc == 2))) {
 		// count occurance
 		FILE * fp = fopen(argv[1], "r");
@@ -274,6 +270,7 @@ int main(int argc, char* argv[]) {
 
 		// edit the header
 		fseek(write_fp, 0L, SEEK_SET);
+		printf("%d %d %d\n", h->compressed_size, h->header_size, h->decompressed_size);
 		fwrite(&h->compressed_size, com_size, 1, write_fp);
 		fwrite(&h->header_size, h_size, 1, write_fp);
 		fwrite(&h->decompressed_size, dec_size, 1, write_fp);
