@@ -9,77 +9,6 @@
 #define NUM_CHAR 256
 #define MAX_BIT  (sizeof(uint64_t) * 8)
 
-
-#define BYTE_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c""%c%c%c%c%c%c%c%c"\
-"%c%c%c%c%c%c%c%c""%c%c%c%c%c%c%c%c"\
-"%c%c%c%c%c%c%c%c""%c%c%c%c%c%c%c%c"\
-"%c%c%c%c%c%c%c%c""%c%c%c%c%c%c%c%c"
-#define BYTE_TO_BINARY(byte)  \
-  (byte & base(63) ? '1' : '0') ,\
-  (byte & base(62) ? '1' : '0') ,\
-  (byte & base(61) ? '1' : '0') ,\
-  (byte & base(60) ? '1' : '0') ,\
-  (byte & base(59) ? '1' : '0') ,\
-  (byte & base(58) ? '1' : '0') ,\
-  (byte & base(57) ? '1' : '0') ,\
-  (byte & base(56) ? '1' : '0') ,\
-  (byte & base(55) ? '1' : '0') ,\
-  (byte & base(54) ? '1' : '0') ,\
-  (byte & base(53) ? '1' : '0') ,\
-  (byte & base(52) ? '1' : '0') ,\
-  (byte & base(51) ? '1' : '0') ,\
-  (byte & base(50) ? '1' : '0') ,\
-  (byte & base(49) ? '1' : '0') ,\
-  (byte & base(48) ? '1' : '0') ,\
-  (byte & base(47) ? '1' : '0') ,\
-  (byte & base(46) ? '1' : '0') ,\
-  (byte & base(45) ? '1' : '0') ,\
-  (byte & base(44) ? '1' : '0') ,\
-  (byte & base(43) ? '1' : '0') ,\
-  (byte & base(42) ? '1' : '0') ,\
-  (byte & base(41) ? '1' : '0') ,\
-  (byte & base(40) ? '1' : '0') ,\
-  (byte & base(39) ? '1' : '0') ,\
-  (byte & base(38) ? '1' : '0') ,\
-  (byte & base(37) ? '1' : '0') ,\
-  (byte & base(36) ? '1' : '0') ,\
-  (byte & base(35) ? '1' : '0') ,\
-  (byte & base(34) ? '1' : '0') ,\
-  (byte & base(33) ? '1' : '0') ,\
-  (byte & base(32) ? '1' : '0') ,\
-  (byte & base(31) ? '1' : '0') ,\
-  (byte & base(30) ? '1' : '0') ,\
-  (byte & base(29) ? '1' : '0') ,\
-  (byte & base(28) ? '1' : '0') ,\
-  (byte & base(27) ? '1' : '0') ,\
-  (byte & base(26) ? '1' : '0') ,\
-  (byte & base(25) ? '1' : '0') ,\
-  (byte & base(24) ? '1' : '0') ,\
-  (byte & base(23) ? '1' : '0') ,\
-  (byte & base(22) ? '1' : '0') ,\
-  (byte & base(21) ? '1' : '0') ,\
-  (byte & base(20) ? '1' : '0') ,\
-  (byte & base(19) ? '1' : '0') ,\
-  (byte & base(18) ? '1' : '0') ,\
-  (byte & base(17) ? '1' : '0') ,\
-  (byte & base(16) ? '1' : '0') ,\
-  (byte & base(15) ? '1' : '0') ,\
-  (byte & base(14) ? '1' : '0') ,\
-  (byte & base(13) ? '1' : '0') ,\
-  (byte & base(12) ? '1' : '0') ,\
-  (byte & base(11) ? '1' : '0') ,\
-  (byte & base(10) ? '1' : '0') ,\
-  (byte & base(9) ? '1' : '0') ,\
-  (byte & base(8) ? '1' : '0') ,\
-  (byte & base(7) ? '1' : '0'), \
-  (byte & base(6) ? '1' : '0'), \
-  (byte & base(5) ? '1' : '0'), \
-  (byte & base(4) ? '1' : '0'), \
-  (byte & base(3) ? '1' : '0'), \
-  (byte & base(2) ? '1' : '0'), \
-  (byte & base(1) ? '1' : '0'), \
-  (byte & base(0) ? '1' : '0') 
-
 typedef struct{
     unsigned char value;
     int   weight;
@@ -194,27 +123,6 @@ int push_bit(uint64_t * stack, int * size) {\
 	return most_sig ? 1: 0;\
 }
 #endif
-
-#ifdef _HUFF_C
-#define PUSH_FRONT()\
-void push_front(uint64_t stack[2], int start) {\
-	int max_bit = MAX_BIT;\
-	for (;start < (max_bit * 2); start++) {\
-		stack[1] = stack[1] << 1;\
-		stack[1] += (~stack[0]) < (stack[0]) ? 1: 0;\
-		stack[0] = stack[0] << 1;\
-	}\
-}
-#endif
-
-#ifdef _UNHUFF_C
-#define PUSH_FRONT()\
-void push_front(uint64_t * stack, int start) {\
-	int max_bit = MAX_BIT;\
-    *stack = (*stack) << (max_bit - start - 1);\
-}
-#endif
-
 
 #define APPEND_BIT() \
 void append(uint64_t * stack, int num) {\
