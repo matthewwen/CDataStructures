@@ -12,11 +12,12 @@ APPEND_TREE()
 FREE_TREE()
 PUSH_BIT()
 APPEND_BIT()
+PUSH_FRONT()
 
 void tree_fun(node_t * head);
 
 int base(int occ) {
-	int num = 1;
+	uint32_t num = 1;
 	return num << occ;
 }
 
@@ -27,7 +28,7 @@ header_t * create_table(FILE * fp) {
 
 	char i;
 	fseek(fp, 0L, SEEK_SET);
-	while (((i = fgetc(fp)) != EOF) && (i != '\n')) {
+	while (((i = fgetc(fp)) != EOF)) {
 		printf("character: %c, idx: %d\n", i, i);
 		header->values[(unsigned int) i].weight += 1;
 	}
@@ -77,7 +78,7 @@ node_t * f_test(header_t * head) {
 		i_node->right  = right;
 		append_tree(&nhead, i_node);
 		printf("------\n");
-		tree_fun(nhead);
+		//tree_fun(nhead);
 		printf("------\n");
 	}
 
@@ -95,7 +96,7 @@ node_t * f_test(header_t * head) {
 	assign_loc(nhead, loc_holder, 0);
 	return nhead;
 }
-
+/*
 void push_front(uint64_t stack[2], int start) {
 	int max_bit = MAX_BIT;
 	for (;start < (max_bit * 2); start++) {
@@ -103,7 +104,7 @@ void push_front(uint64_t stack[2], int start) {
 		stack[1] += (~stack[0]) < (stack[0]) ? 1: 0;
 		stack[0] = stack[0] << 1;
 	}
-}
+}*/
 
 void assign_loc(node_t * head, uint64_t loc[2], int size){
 	if (head != NULL && head->type == NODE) {
@@ -112,7 +113,7 @@ void assign_loc(node_t * head, uint64_t loc[2], int size){
 		memcpy(left, loc, sizeof(left));
 		memcpy(right, loc, sizeof(right));
 
-		// shift bytes to the left by 1
+		// shift bits to the left by 1
 		left[1]  = left[1] << 1;
 		right[1] = right[1] << 1;
 
@@ -120,8 +121,12 @@ void assign_loc(node_t * head, uint64_t loc[2], int size){
 		left[1] += ~left[0] < left[0] ? 1: 0;
 		right[1] += ~right[0] < right[0] ? 1: 0;
 
+		// shift bits to the left by 1
+		left[0]  = left[0] << 1;
+		right[0] = right[0] << 1;
+
 		// add element to bottom
-		right[0] += 1;
+		right[0] = right[0] + 1;
 		
 		assign_loc(head->data.i->left, left, size + 1);
 		assign_loc(head->data.i->right, right, size + 1);
@@ -154,6 +159,9 @@ void write_header(header_t * h, FILE * fp) {
 }
 
 void tree_fun(node_t * head) {
+	if (head == NULL) {
+		return;
+	}
 	// pre order
 	if (head->type == VALUE) {
 		printf("value: %c\n", head->data.value->value);
@@ -213,12 +221,11 @@ int main(int argc, char* argv[]) {
 				buffer_size++;
 			}
 		}
-		printf("size: %d, num: %ld, printing bytes: ", buffer_size, buffer);
-		printf(BYTE_TO_BINARY_PATTERN"\n",BYTE_TO_BINARY(buffer));
-		fwrite(&buffer, sizeof(buffer), 1, write_fp);
-		printf(BYTE_TO_BINARY_PATTERN,BYTE_TO_BINARY(buffer));
-		h->compressed_size = ftell(write_fp);
 		tree_fun(nhead);
+    	buffer = buffer << (MAX_BIT - buffer_size);
+		fwrite(&buffer, sizeof(buffer), 1, write_fp);
+		h->compressed_size = ftell(write_fp);
+		//tree_fun(nhead);
 		free_tree(&nhead);
 
 		// edit the header

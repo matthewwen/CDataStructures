@@ -136,7 +136,6 @@ void append_tree(node_t ** a_node, i_t * i_node) {\
 		*a_node  = cp_node;\
 	}\
 	else if (cp_node->type == NODE) {\
-		if (cp_node->is_leaf || cp_node->data.i->weight < i_node->weight) {\
 			/* allocate memory*/\
 			cp_i     = malloc(sizeof(*cp_i));\
 			n_node   = malloc(sizeof(*n_node));\
@@ -155,28 +154,6 @@ void append_tree(node_t ** a_node, i_t * i_node) {\
 			cp_node  = malloc(sizeof(*cp_node));\
 			*cp_node = (node_t) {.type = NODE, .is_leaf = false, .data = (data_t) {.i = cp_i}};\
 			*a_node  = cp_node;\
-		}\
-		else {\
-			if (cp_node->data.i->weight < i_node->weight) {\
-				append_tree(&(*a_node)->data.i->left, i_node);\
-			}\
-			else {\
-				append_tree(&(*a_node)->data.i->right, i_node);\
-\
-			}\
-			/* update the weight*/\
-			(*a_node)->data.i->weight += i_node->weight;\
-\
-			/* flip node of left occurance is greater than right*/\
-			if ((*a_node)->is_leaf == false) {\
-				cp_i = (*a_node)->data.i;\
-				if (cp_i->left->data.i->weight > cp_i->right->data.i->weight) {\
-					node_t * holder = cp_i->right;\
-					cp_i->right = cp_i->left;\
-					cp_i->left = holder;\
-				}\
-			}\
-		}\
 	}\
 }
 
@@ -217,6 +194,27 @@ int push_bit(uint64_t * stack, int * size) {\
 	return most_sig ? 1: 0;\
 }
 #endif
+
+#ifdef _HUFF_C
+#define PUSH_FRONT()\
+void push_front(uint64_t stack[2], int start) {\
+	int max_bit = MAX_BIT;\
+	for (;start < (max_bit * 2); start++) {\
+		stack[1] = stack[1] << 1;\
+		stack[1] += (~stack[0]) < (stack[0]) ? 1: 0;\
+		stack[0] = stack[0] << 1;\
+	}\
+}
+#endif
+
+#ifdef _UNHUFF_C
+#define PUSH_FRONT()\
+void push_front(uint64_t * stack, int start) {\
+	int max_bit = MAX_BIT;\
+    *stack = (*stack) << (max_bit - start - 1);\
+}
+#endif
+
 
 #define APPEND_BIT() \
 void append(uint64_t * stack, int num) {\
