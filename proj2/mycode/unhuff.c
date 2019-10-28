@@ -7,7 +7,7 @@
 
 APPEND_TREE()
 FREE_TREE()
-PUSH_BIT()
+P_BIT()
 
 bool f_test(node_t * curr, bit_t stack, uint64_t com_s, FILE * fp, FILE * fp_w);
 void v_test(node_t * head, bit_t stack, uint64_t com_s, FILE * fp, FILE * fp_w) {
@@ -26,9 +26,12 @@ bool f_test(node_t * curr, bit_t stack, uint64_t com_s, FILE * fp, FILE * fp_w) 
 			return false;
 		}
 		fread(stack.stack, sizeof(*stack.stack), 1, fp);
-		*stack.size = MAX_BIT;
+		*stack.size = 8 * sizeof(*stack.stack);
 	}
-	int dir = push_bit(stack.stack, stack.size);
+	uint8_t cp  = ~(*stack.stack);
+	int dir = cp < *stack.stack;
+	*stack.stack = (*stack.stack) << 1;
+	*stack.size -= 1;
 	if (dir == 0) {
 		return f_test(curr->data.i->left, stack, com_s, fp, fp_w);
 	}
@@ -39,7 +42,7 @@ int main(int argc, char* argv[]) {
 	bool input_valid = false;
 	if ((input_valid = (argc == 2))) {
 		FILE * fp = fopen(argv[1], "r");
-		NEW_FILE(nname, argv[1], ".txt")
+		NEW_FILE(nname, argv[1], ".unhuff")
 		FILE * fp_w = fopen(nname, "w");
 		header_t * h = malloc(sizeof(*h));
 		size_t com_size, h_size, dec_size;
@@ -69,7 +72,7 @@ int main(int argc, char* argv[]) {
 
 			append_tree(&head, i_node);
 		}
-		uint64_t stack;
+		uint8_t stack;
 		int size = 0;
 		v_test(head, (bit_t) {.stack = &stack, .size = &size}, h->decompressed_size, fp, fp_w);
 		fclose(fp);

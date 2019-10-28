@@ -10,12 +10,31 @@ node_t * f_test(header_t * head);
 void assign_loc(node_t * head, uint64_t loc[2], int size);
 APPEND_TREE()
 FREE_TREE()
-PUSH_BIT()
+P_BIT()
 APPEND_BIT()
 
 int base(int occ) {
 	uint32_t num = 1;
 	return num << occ;
+}
+
+void tree_fun(node_t * head) {
+	if (head == NULL) {
+		printf("null, reverse");
+		return;
+	}
+	// pre order
+	if (head->type == VALUE) {
+		printf("value: %c\n", head->data.value->value);
+	}
+	else {
+		printf("left\n");
+		tree_fun(head->data.i->left);
+		printf("back left\n");
+		printf("right\n");
+		tree_fun(head->data.i->right);
+		printf("back right\n");
+	}
 }
 
 header_t * create_table(FILE * fp) {
@@ -170,7 +189,7 @@ int main(int argc, char* argv[]) {
 
 		// write data into it
 		int idx; 
-		uint64_t buffer = 0;
+		uint8_t buffer = 0;
 		uint64_t idx_loc[2];
 		int buffer_size = 0;
 		fseek(fp, 0, SEEK_SET);
@@ -178,8 +197,11 @@ int main(int argc, char* argv[]) {
 			value_t value = h->values[idx];
 			int size = value.numbit;
 			memcpy(idx_loc, value.loc, sizeof(idx_loc));
+			if (size > 8) {
+				printf("size is greater than 8 %c\n", size);
+			}
 			while (size > 0) {
-				if (buffer_size == MAX_BIT) {
+				if (buffer_size == (sizeof(buffer) * 8)) {
 					fwrite(&buffer, sizeof(buffer), 1, write_fp);
 					buffer = 0, buffer_size = 0;
 				}
@@ -187,7 +209,7 @@ int main(int argc, char* argv[]) {
 				buffer_size++;
 			}
 		}
-    	buffer = buffer << (MAX_BIT - buffer_size);
+    	buffer = buffer << ((sizeof(buffer) * 8) - buffer_size);
 		fwrite(&buffer, sizeof(buffer), 1, write_fp);
 		h->compressed_size = ftell(write_fp);
 		free_tree(&nhead);
@@ -197,6 +219,7 @@ int main(int argc, char* argv[]) {
 		fwrite(&h->compressed_size, com_size, 1, write_fp);
 		fwrite(&h->header_size, h_size, 1, write_fp);
 		fwrite(&h->decompressed_size, dec_size, 1, write_fp);
+		printf("compressed: %ld, header: %ld, decompressed: %ld\n", h->compressed_size, h->header_size, h->decompressed_size);
 
 		// clean up
 		fclose(write_fp);

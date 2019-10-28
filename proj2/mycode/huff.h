@@ -45,7 +45,7 @@ typedef struct{
 }header_t;
 
 typedef struct{
-	uint64_t * stack;
+	uint8_t * stack;
 	int * size;
 }bit_t;
 
@@ -103,7 +103,7 @@ void free_tree(node_t ** head) {\
 }
 
 #ifdef _HUFF_C
-#define PUSH_BIT() \
+#define P_BIT() \
 int push_bit(uint64_t stack[2], int * size) {\
 	bool most_sig = (~stack[1]) < (stack[1]);\
 	stack[1] = stack[1] << 1;\
@@ -115,8 +115,8 @@ int push_bit(uint64_t stack[2], int * size) {\
 #endif
 
 #ifdef _UNHUFF_C
-#define PUSH_BIT() \
-int push_bit(uint64_t * stack, int * size) {\
+#define P_BIT() \
+int push_bit(uint8_t * stack, int * size) {\
 	bool most_sig = (~(*stack)) < (*stack);\
 	(*stack) = (*stack) << 1;\
 	*size -= 1;\
@@ -124,8 +124,20 @@ int push_bit(uint64_t * stack, int * size) {\
 }
 #endif
 
+#define PUSH_BIT(VAR, STACK, SIZE)\
+do {\
+	uint8_t cpy = *STACK;\
+	uint8_t ccpy = ~cpy;\
+	bool most_sig = ccpy < (cpy);\
+	(*STACK) = cpy << 1;\
+	*SIZE -= 1;\
+	VAR =  most_sig;\
+}while(false);
+
+
+
 #define APPEND_BIT() \
-void append(uint64_t * stack, int num) {\
+void append(uint8_t * stack, int num) {\
 	*stack = *stack << 1;\
 	*stack += num;\
 }\
