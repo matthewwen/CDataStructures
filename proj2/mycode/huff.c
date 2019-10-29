@@ -117,12 +117,31 @@ void write_header(node_t * head, uint8_t * stack, uint8_t * size, FILE * fp) {
 		add_stack(stack, size, v->value, 8, fp);
 	}
 }
+// debugging start
+int count;
+// debugging end
 
 void add_stack(uint8_t * s, uint8_t * s_size, uint8_t e, uint8_t e_size, FILE * fp) {
 	PUSH_FRONT(e, e_size);
 	for (;e_size > 0; ) {
 		if ((*s_size) ==  8) {
 			fwrite(s, sizeof(*s), 1, fp);
+
+			// debugging start
+			do {
+				uint8_t cp = *s;
+				uint8_t size = 8;
+				printf("%d: ", count);
+				for (int i = 0; i < 8; i++){
+					int j;
+					PUSH_BIT(j, cp, size);
+					printf("%d", j);
+				}
+			}while (false);
+			count++;
+			printf("\n");
+			// debugging end
+
 			(*s) = 0;
 			(*s_size) = 0;
 		}
@@ -134,6 +153,9 @@ void add_stack(uint8_t * s, uint8_t * s_size, uint8_t e, uint8_t e_size, FILE * 
 }
 
 int main(int argc, char* argv[]) {
+	// debugging start
+	count = 0;
+	// debugging end
 	bool input_valid = false;
 	node_t * nhead   = NULL;
 
@@ -158,6 +180,22 @@ int main(int argc, char* argv[]) {
 		uint8_t stack = 0;
 		uint8_t size  = 0;
 		write_header(nhead, &stack, &size, write_fp);
+		PUSH_FRONT(stack, size);
+		fwrite(&stack, sizeof(stack), 1, write_fp);
+		// debugging start
+		do {
+			uint8_t cp = stack;
+			uint8_t size = 8;
+			printf("%d: ", count);
+			for (int i = 0; i < 8; i++){
+				int j;
+				PUSH_BIT(j, cp, size);
+				printf("%d", j);
+			}
+		}while (false);
+		count++;
+		printf("\n");
+		// debugging end
 		h->header_size = ftell(write_fp);
 
 		// write data into file
@@ -171,8 +209,24 @@ int main(int argc, char* argv[]) {
 			value_t value = h->values[idx];
 			add_stack(&buffer, &buffer_size, value.loc, value.numbit, write_fp);
 		}
-    	buffer = buffer << ((sizeof(buffer) * 8) - buffer_size);
+		printf("buffer size: %d\n", buffer_size);
+		PUSH_FRONT(buffer, buffer_size);
 		fwrite(&buffer, sizeof(buffer), 1, write_fp);
+		// debugging start
+		do {
+			uint8_t cp = stack;
+			uint8_t size = 8;
+			printf("%d: ", count);
+			for (int i = 0; i < 8; i++){
+				int j;
+				PUSH_BIT(j, cp, size);
+				printf("%d", j);
+			}
+		}while (false);
+		count++;
+		printf("\n");
+		// debugging end*/
+
 		h->compressed_size = ftell(write_fp);
 		free_tree(&nhead);
 

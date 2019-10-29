@@ -13,7 +13,7 @@ typedef struct{
     unsigned char value;
     uint32_t weight;
     uint64_t loc;
-    int numbit;
+    uint8_t numbit;
 }value_t;
 
 struct node_t;
@@ -46,7 +46,7 @@ typedef struct{
 
 typedef struct{
 	uint8_t * stack;
-	int * size;
+	uint8_t * size;
 }bit_t;
 
 // Function Definition

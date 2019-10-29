@@ -12,7 +12,6 @@ P_BIT()
 bool f_test(node_t * curr, bit_t stack, uint64_t com_s, FILE * fp, FILE * fp_w);
 void v_test(node_t * head, bit_t stack, uint64_t com_s, FILE * fp, FILE * fp_w) {
 	while (ftell(fp_w) < com_s) {
-		printf("hello\n");
 		f_test(head, stack, com_s, fp, fp_w);
 	}
 }
@@ -29,10 +28,8 @@ bool f_test(node_t * curr, bit_t stack, uint64_t com_s, FILE * fp, FILE * fp_w) 
 		fread(stack.stack, sizeof(*stack.stack), 1, fp);
 		*stack.size = 8 * sizeof(*stack.stack);
 	}
-	uint8_t cp  = ~(*stack.stack);
-	int dir = cp < *stack.stack;
-	*stack.stack = (*stack.stack) << 1;
-	*stack.size -= 1;
+	int dir;
+	PUSH_BIT(dir, *stack.stack, *stack.size);
 	if (dir == 0) {
 		return f_test(curr->data.i->left, stack, com_s, fp, fp_w);
 	}
@@ -54,17 +51,20 @@ uint8_t get_char(uint8_t * s, uint8_t * s_size, FILE * fp_r) {
 		PUSH_BIT(i, *s, *s_size);
 		APPEND_BIT(c, i);
 	}
+	printf("%c\n", c);
 
 	return c;
 }
 
 node_t * create_table(uint8_t * s, uint8_t * s_size, FILE * fp_r) {
 	if ((*s_size) == 0) {
+		printf("read file\n");
 		fread(s, sizeof(*s), 1, fp_r);
 		*s_size = sizeof(*s) * 8;
 	}
 	int i;
 	PUSH_BIT(i, *s, *s_size);
+	printf("68 update\n");
 	node_t * n_node = malloc(sizeof(*n_node));
 	*n_node = (node_t) {.type = (i == 1 ? VALUE: NODE)};
 	if (i == 0) {
@@ -111,12 +111,13 @@ int main(int argc, char* argv[]) {
 		// change
 		uint8_t s = 0, s_size = 0;
 		node_t * head = create_table(&s, &s_size, fp);
-		print_btree(head);
+		printf("location: %d, expected: %d\n", ftell(fp), h->header_size);
+		//print_btree(head);
 
 		// run data
-		uint8_t stack;
-		int size = 0;
-		v_test(head, (bit_t) {.stack = &stack, .size = &size}, h->decompressed_size, fp, fp_w);
+		s = 0;
+		s_size = 0;
+		v_test(head, (bit_t) {.stack = &s, .size = &s_size}, h->decompressed_size, fp, fp_w);
 		fclose(fp);
 		free(h);
 		free_tree(&head);
