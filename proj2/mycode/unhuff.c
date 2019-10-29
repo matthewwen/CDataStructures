@@ -5,9 +5,7 @@
 #include <string.h>
 #include "huff.h"
 
-APPEND_TREE()
 FREE_TREE()
-P_BIT()
 
 bool f_test(node_t * curr, bit_t stack, uint64_t com_s, FILE * fp, FILE * fp_w);
 void v_test(node_t * head, bit_t stack, uint64_t com_s, FILE * fp, FILE * fp_w) {
@@ -51,20 +49,17 @@ uint8_t get_char(uint8_t * s, uint8_t * s_size, FILE * fp_r) {
 		PUSH_BIT(i, *s, *s_size);
 		APPEND_BIT(c, i);
 	}
-	printf("%c\n", c);
 
 	return c;
 }
 
 node_t * create_table(uint8_t * s, uint8_t * s_size, FILE * fp_r) {
 	if ((*s_size) == 0) {
-		printf("read file\n");
 		fread(s, sizeof(*s), 1, fp_r);
 		*s_size = sizeof(*s) * 8;
 	}
 	int i;
 	PUSH_BIT(i, *s, *s_size);
-	printf("68 update\n");
 	node_t * n_node = malloc(sizeof(*n_node));
 	*n_node = (node_t) {.type = (i == 1 ? VALUE: NODE)};
 	if (i == 0) {
@@ -76,24 +71,9 @@ node_t * create_table(uint8_t * s, uint8_t * s_size, FILE * fp_r) {
 	else {
 		value_t * v_node = malloc(sizeof(*v_node));
 		*v_node = (value_t) {.value = get_char(s, s_size, fp_r)};
-		printf("s: %c\n", v_node->value);
 		n_node->data.value = v_node;
 	}
 	return n_node;
-}
-
-void print_btree(node_t * head) {
-	if (head->type == NODE){
-		printf("left\n");
-		print_btree(head->data.i->left);
-		printf("back left\n");
-		printf("right\n");
-		print_btree(head->data.i->right);
-		printf("back right\n");
-	}
-	else {
-		printf("c:%c\n", head->data.value->value);
-	}
 }
 
 int main(int argc, char* argv[]) {

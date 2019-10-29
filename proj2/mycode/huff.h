@@ -50,9 +50,21 @@ typedef struct{
 }bit_t;
 
 // Function Definition
-#define APPEND_TREE() 
-
+#ifdef _UNHUFF_C
 #define FREE_TREE() \
+		UPPER_FREE_TREE()\
+		INT_FREE_TREE()\
+		VAL_FREE_TREE() \
+		LOWER_FREE_TREE()
+#endif  
+
+#ifdef _HUFF_C
+#define FREE_TREE() \
+		UPPER_FREE_TREE()\
+		LOWER_FREE_TREE()
+#endif
+
+#define UPPER_FREE_TREE() \
 void free_tree(node_t ** head); \
 void free_tree(node_t ** head) {\
 	node_t * cp_head = *head;\
@@ -60,34 +72,19 @@ void free_tree(node_t ** head) {\
 		data_t * cp_data = &(*head)->data;\
 		if (cp_head->type == NODE) {\
 			free_tree(&cp_data->i->left);\
-			free_tree(&cp_data->i->right);\
+			free_tree(&cp_data->i->right);
+#define INT_FREE_TREE()\
+			free(cp_data->i);
+#define VAL_FREE_TREE()\
+		}\
+		else if (cp_head->type == VALUE) {\
+			free((*head)->data.value);
+#define LOWER_FREE_TREE() \
 		}\
 		free(cp_head);\
 		*head = NULL;\
 	}\
 }
-
-#ifdef _HUFF_C
-#define P_BIT() \
-int push_bit(uint64_t stack[2], int * size) {\
-	bool most_sig = (~stack[1]) < (stack[1]);\
-	stack[1] = stack[1] << 1;\
-	stack[1] += (~stack[0]) < (stack[0]) ? 1: 0;\
-	stack[0] = stack[0] << 1;\
-	*size -= 1;\
-	return most_sig ? 1: 0;\
-}
-#endif
-
-#ifdef _UNHUFF_C
-#define P_BIT() \
-int push_bit(uint8_t * stack, int * size) {\
-	bool most_sig = (~(*stack)) < (*stack);\
-	(*stack) = (*stack) << 1;\
-	*size -= 1;\
-	return most_sig ? 1: 0;\
-}
-#endif
 
 #define PUSH_BIT(VAR, STACK, SIZE)\
 do {\
@@ -110,7 +107,7 @@ do {\
 }while(false);
 
 #define NEW_FILE(VNAME, ARG, END) \
-	char * VNAME;\
+	char * VNAME = NULL;\
 	do {\
 		VNAME = malloc((strlen(ARG) + strlen(END) + 1) * sizeof(*VNAME));\
 		strcpy(VNAME, ARG);\
