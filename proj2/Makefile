@@ -11,8 +11,8 @@ INCLUDE=mycode/huff.h
 
 FOLDER=ece368-project2
 
-PDF=ms1.pdf
-	#report.pdf
+PDF=ms1.pdf\
+	report.pdf
 
 SAMPLE=sample/*
 
@@ -75,7 +75,7 @@ ms1submit:
 finalsubmit:
 	mkdir $(FOLDER)
 	cp $(HUFF_MAIN) $(UNHUFF_MAIN) $(HEADER) $(FOLDER) 
-	#cp $(PDF) $(FOLDER)
+	cp $(PDF) $(FOLDER)
 	make $(HUFFNAME)
 	make $(UNHUFFNAME)
 	mv $(HUFFNAME) $(UNHUFFNAME) $(FOLDER)
