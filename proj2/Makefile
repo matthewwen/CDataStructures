@@ -28,7 +28,7 @@ t:
 	./$(UNHUFFNAME) example.txt.huff
 	diff example.txt example.txt.huff.unhuff
 
-test:
+test0:
 	./$(HUFFNAME) input/text0.txt
 	./$(UNHUFFNAME) input/text0.txt.huff
 	diff input/text0.txt input/text0.txt.huff.unhuff

@@ -164,7 +164,6 @@ int main(int argc, char* argv[]) {
 		// write data into file
 		int idx; 
 		uint8_t buffer = 0;
-		uint64_t idx_loc;
 		uint8_t buffer_size = 0;
 		fseek(fp, 0, SEEK_SET);
 
