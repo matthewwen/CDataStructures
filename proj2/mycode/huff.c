@@ -6,35 +6,26 @@
 #include <assert.h>
 #include "huff.h"
 
-node_t * f_test(header_t * head);
-void assign_loc(node_t * head, uint64_t loc[2], int size);
-APPEND_TREE()
 FREE_TREE()
-P_BIT()
-APPEND_BIT()
 
-int base(int occ) {
-	uint32_t num = 1;
-	return num << occ;
-}
+node_t * append_tree(node_t * n1, node_t * n2) {
+	/* allocate memory*/
+	i_t * n_i;
+	node_t * n_node = malloc(sizeof(*n_node) + sizeof(*n_i));
+	n_i             = (i_t *) (n_node + 1);
 
-void tree_fun(node_t * head) {
-	if (head == NULL) {
-		printf("null, reverse");
-		return;
-	}
-	// pre order
-	if (head->type == VALUE) {
-		printf("value: %c\n", head->data.value->value);
-	}
-	else {
-		printf("left\n");
-		tree_fun(head->data.i->left);
-		printf("back left\n");
-		printf("right\n");
-		tree_fun(head->data.i->right);
-		printf("back right\n");
-	}
+	/* set up new intersection and left / right*/
+	int og_w, n_w;
+	n_i->weight = (og_w = (n1->type == VALUE) ? n1->data.value->weight : n1->data.i->weight) + 
+				  (n_w  = (n2->type == VALUE) ? n2->data.value->weight : n2->data.i->weight);
+	bool is_left;
+	n_i->left   = (is_left = og_w < n_w) ?  n1: n2;
+	n_i->right  = is_left                ?  n2: n1;
+
+	/* reset copy node */
+	*n_node = (node_t) {.type = NODE, .is_leaf = true, .data = (data_t) {.i = n_i}};
+
+	return n_node;
 }
 
 header_t * create_table(FILE * fp) {
@@ -51,115 +42,95 @@ header_t * create_table(FILE * fp) {
 	return header;
 }
 
+node_t * f_test(header_t * head);
+void assign_loc(node_t * head, uint64_t loc, int size);
 node_t * f_test(header_t * head) {
 	// perform insertion, sort in assending order
-	value_t * order_list[NUM_CHAR];
+	node_t * order_list[NUM_CHAR];
 	int i, j, last_pos = 0;
-	node_t * nhead = NULL;
 
 	value_t * pos;
+	node_t * n_node;
 	for (i = 0; i < NUM_CHAR; i++) {
 		if ((pos = &head->values[i])->weight != 0) {
 			pos->value = i;
-			for (j = last_pos; j > 0 && order_list[j - 1]->weight > pos->weight; j--) {
+			n_node     = malloc(sizeof(*n_node));
+			*n_node    = (node_t) {.type = VALUE, .data = (data_t) {.value = pos}};
+			for (j = last_pos; j > 0 && order_list[j - 1]->data.value->weight < pos->weight; j--) {
 				order_list[j] = order_list[j - 1];
 			}
-			order_list[j] = pos;
+			order_list[j] = n_node;
 			last_pos++;
 		}
 	}
-
 	// saving inside of header
-	memcpy(head->sorted, order_list, sizeof(order_list));
 	head->buffer_end = last_pos;
 
+
 	// add element into binary tree
-	i_t * i_node;
-	node_t * left, * right;
-	for (i = 0; i < last_pos - 1; i += 2) {
-		i_node = malloc(sizeof(*i_node));
-		left   = malloc(sizeof(*left));
-		right  = malloc(sizeof(*right));
-
-		*left  = (node_t) {.type = VALUE, .data = (data_t) {.value = order_list[i]}};
-		*right = (node_t) {.type = VALUE, .data = (data_t) {.value = order_list[i + 1]}};
-		i_node->weight = order_list[i]->weight + order_list[i + 1]->weight;
-		i_node->left   = left;
-		i_node->right  = right;
-		append_tree(&nhead, i_node);
+	node_t * holder;
+	for (;last_pos > 1; last_pos--) {
+		n_node = append_tree(order_list[last_pos - 1], order_list[last_pos - 2]);
+		order_list[last_pos - 1] = NULL;
+		order_list[last_pos - 2] = NULL;
+		for (j = last_pos - 2; j > 0 && ((holder = order_list[j - 1])->type == VALUE ?
+							              holder->data.value->weight: holder->data.i->weight) < n_node->data.i->weight; j--) {
+			order_list[j] = order_list[j - 1];
+		}
+		order_list[j] = n_node;
 	}
 
-	// if odd number of elements is noticed
-	if (i == (last_pos - 1)) {
-		left   = malloc(sizeof(*left));
-		i_node = malloc(sizeof(*i_node));
-		*left  = (node_t) {.type = VALUE, .data = (data_t) {.value = order_list[last_pos - 1]}};
-		*i_node = (i_t) {.weight = left->data.value->weight, .left = left, .right = NULL};
-		append_tree(&nhead, i_node);
-	}
-
-	uint64_t loc_holder[2] = {0, 0};
-	assign_loc(nhead, loc_holder, 0);
-	return nhead;
+	assign_loc(order_list[0], 0, 0);
+	return order_list[0];
 }
 
-void push_front(uint64_t stack[2], int start) {
-	int max_bit = MAX_BIT;
-	for (;start < (max_bit * 2); start++) {
-		stack[1] = stack[1] << 1;
-		stack[1] += (~stack[0]) < (stack[0]) ? 1: 0;
-		stack[0] = stack[0] << 1;
-	}
-}
-
-void assign_loc(node_t * head, uint64_t loc[2], int size){
+void assign_loc(node_t * head, uint64_t loc, int size){
 	if (head != NULL && head->type == NODE) {
-		uint64_t left[2], right[2];
-
-		memcpy(left, loc, sizeof(left));
-		memcpy(right, loc, sizeof(right));
-
-		// shift bits to the left by 1
-		left[1]  = left[1] << 1;
-		right[1] = right[1] << 1;
-
-		// push elements if necessary
-		left[1] += ~left[0] < left[0] ? 1: 0;
-		right[1] += ~right[0] < right[0] ? 1: 0;
-
-		// shift bits to the left by 1
-		left[0]  = left[0] << 1;
-		right[0] = right[0] << 1;
-
-		// add element to bottom
-		right[0] = right[0] + 1;
+		uint64_t left = loc << 1, right = left + 1;
 		
 		assign_loc(head->data.i->left, left, size + 1);
 		assign_loc(head->data.i->right, right, size + 1);
 	}
 	else if (head != NULL && head->type == VALUE) {
-		memcpy(head->data.value->loc, loc, 2 * sizeof(uint64_t));
-		push_front(head->data.value->loc, size);
+		head->data.value->loc = loc;
+		//PUSH_FRONT(head->data.value->loc, size);
 		head->data.value->numbit = size;
 	}
 }
 
-void write_header(header_t * h, FILE * fp) {
-	int i, w;
-	value_t *v1, *v2;
-	for (i = 0; i < h->buffer_end - 1; i+=2) {
-		fputc((v1 = h->sorted[i])->value, fp);
-		fputc((v2 = h->sorted[i + 1])->value, fp);
-		w = v1->weight + v2->weight;
-		fwrite(&w, sizeof(w), 1, fp);
+// redit this entire function
+void write_header(node_t * head, uint8_t * stack, uint8_t * size, FILE * fp);
+void add_stack(uint8_t * s, uint8_t * s_size, uint8_t e, uint8_t e_size, FILE * fp);
+void write_header(node_t * head, uint8_t * stack, uint8_t * size, FILE * fp) {
+	if (head == NULL) {
+		return;
 	}
+	else if (head->type == NODE) {
+		// tell program to go left
+		add_stack(stack, size, 0, 1, fp);
+		write_header(head->data.i->left, stack, size, fp);
+		write_header(head->data.i->right, stack, size, fp);
+	}
+	else {
+		// found a node
+		value_t * v = head->data.value;
+		add_stack(stack, size, 1, 1, fp);
+		add_stack(stack, size, v->value, 8, fp);
+	}
+}
 
-	if (i == (h->buffer_end - 1)) {
-		fputc((v1 = h->sorted[h->buffer_end - 1])->value, fp);
-		fputc(0, fp);
-		w = v1->weight;
-		fwrite(&w, sizeof(w), 1, fp);
-	}
+void add_stack(uint8_t * s, uint8_t * s_size, uint8_t e, uint8_t e_size, FILE * fp) {
+	PUSH_FRONT(e, e_size);
+	for (;e_size > 0; ) {
+		if ((*s_size) ==  8) {
+			fwrite(s, sizeof(s), 1, fp);
+			(*s) = 0, (*s_size) = 0;
+		}
+		uint8_t push;
+		PUSH_BIT(push, e, e_size);
+		APPEND_BIT(*s, push);
+		(*s_size)++;
+	}	
 }
 
 int main(int argc, char* argv[]) {
@@ -182,33 +153,29 @@ int main(int argc, char* argv[]) {
 		// write header into file
 		size_t com_size, h_size, dec_size;
 		fwrite(h, (com_size = sizeof(h->compressed_size)) + 
-		           (h_size = sizeof(h->header_size)) + 
-				   (dec_size = sizeof(h->decompressed_size)), 1, write_fp);
-		write_header(h, write_fp);
+		          (h_size   = sizeof(h->header_size)) + 
+				  (dec_size = sizeof(h->decompressed_size)), 1, write_fp);
+		uint8_t stack = 0;
+		uint8_t size  = 0;
+		write_header(nhead, &stack, &size, write_fp);
 		h->header_size = ftell(write_fp);
 
-		// write data into it
+		// write data into file
 		int idx; 
 		uint8_t buffer = 0;
-		uint64_t idx_loc[2];
-		int buffer_size = 0;
+		uint64_t idx_loc;
+		uint8_t buffer_size = 0;
 		fseek(fp, 0, SEEK_SET);
+
+		int avg_size = 0;
+		int count = 0;
 		for (;(idx = fgetc(fp)) != EOF;) {
 			value_t value = h->values[idx];
-			int size = value.numbit;
-			memcpy(idx_loc, value.loc, sizeof(idx_loc));
-			if (size > 8) {
-				printf("size is greater than 8 %c\n", size);
-			}
-			while (size > 0) {
-				if (buffer_size == (sizeof(buffer) * 8)) {
-					fwrite(&buffer, sizeof(buffer), 1, write_fp);
-					buffer = 0, buffer_size = 0;
-				}
-				append(&buffer, push_bit(idx_loc, &size));
-				buffer_size++;
-			}
+			avg_size += size;
+			count++;
+			add_stack(&buffer, &buffer_size, value.loc, value.numbit, write_fp);
 		}
+		printf("\navg size: %d\n", avg_size / count);
     	buffer = buffer << ((sizeof(buffer) * 8) - buffer_size);
 		fwrite(&buffer, sizeof(buffer), 1, write_fp);
 		h->compressed_size = ftell(write_fp);

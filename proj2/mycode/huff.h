@@ -11,8 +11,8 @@
 
 typedef struct{
     unsigned char value;
-    int   weight;
-    uint64_t loc[2];
+    uint32_t weight;
+    uint64_t loc;
     int numbit;
 }value_t;
 
@@ -40,7 +40,7 @@ typedef struct{
     uint64_t header_size;
     uint64_t decompressed_size;
     value_t  values[NUM_CHAR];
-    value_t * sorted[NUM_CHAR];
+	node_t * order[NUM_CHAR];
     int buffer_end;
 }header_t;
 
@@ -50,41 +50,7 @@ typedef struct{
 }bit_t;
 
 // Function Definition
-#define APPEND_TREE() \
-void append_tree(node_t ** a_node, i_t * i_node); \
-void append_tree(node_t ** a_node, i_t * i_node) {\
-	node_t * n_node, * cp_node = *a_node;\
-	i_t    * cp_i;\
-\
-	int og_w, n_w;\
-	bool is_left;\
-\
-	if (cp_node == NULL) {\
-		cp_node  = malloc(sizeof(*cp_node));\
-		*cp_node = (node_t) {.type = NODE, .is_leaf = true, .data = (data_t) {.i = i_node}};\
-		*a_node  = cp_node;\
-	}\
-	else if (cp_node->type == NODE) {\
-			/* allocate memory*/\
-			cp_i     = malloc(sizeof(*cp_i));\
-			n_node   = malloc(sizeof(*n_node));\
-\
-			/* set up new intersection*/\
-			cp_i->weight = (og_w = cp_node->data.i->weight) + (n_w = i_node->weight);\
-\
-			/* create node for i_node*/\
-			*n_node  = (node_t) {.type = NODE, .is_leaf = true, .data = (data_t) {.i = i_node}};\
-\
-			/* determine left / right*/\
-			cp_i->left  = (is_left = og_w < n_w) ? *a_node: n_node;\
-			cp_i->right = is_left                ?  n_node: *a_node;\
-			\
-			/* reset copy node*/\
-			cp_node  = malloc(sizeof(*cp_node));\
-			*cp_node = (node_t) {.type = NODE, .is_leaf = false, .data = (data_t) {.i = cp_i}};\
-			*a_node  = cp_node;\
-	}\
-}
+#define APPEND_TREE() 
 
 #define FREE_TREE() \
 void free_tree(node_t ** head); \
@@ -95,7 +61,6 @@ void free_tree(node_t ** head) {\
 		if (cp_head->type == NODE) {\
 			free_tree(&cp_data->i->left);\
 			free_tree(&cp_data->i->right);\
-			free(cp_data->i);\
 		}\
 		free(cp_head);\
 		*head = NULL;\
@@ -126,21 +91,23 @@ int push_bit(uint8_t * stack, int * size) {\
 
 #define PUSH_BIT(VAR, STACK, SIZE)\
 do {\
-	uint8_t cpy = *STACK;\
-	uint8_t ccpy = ~cpy;\
-	bool most_sig = ccpy < (cpy);\
-	(*STACK) = cpy << 1;\
-	*SIZE -= 1;\
-	VAR =  most_sig;\
+	uint8_t ccpy = ~(STACK);\
+	VAR = (ccpy) < (STACK);\
+	STACK = (STACK) << 1;\
+	SIZE -= 1;\
 }while(false);
 
+#define PUSH_FRONT(STACK, START)\
+do {\
+	STACK = (STACK) << ((sizeof(STACK) * 8) - (START));\
+}while(false);\
 
 
-#define APPEND_BIT() \
-void append(uint8_t * stack, int num) {\
-	*stack = *stack << 1;\
-	*stack += num;\
-}\
+#define APPEND_BIT(STACK, NUM) \
+do {\
+	(STACK) = (STACK) << 1;\
+	(STACK) += NUM;\
+}while(false);
 
 #define NEW_FILE(VNAME, ARG, END) \
 	char * VNAME;\

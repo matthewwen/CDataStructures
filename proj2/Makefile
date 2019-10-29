@@ -2,7 +2,8 @@ HUFFNAME=huff
 UNHUFFNAME=unhuff
 
 # add -O3 later
-CFLAG= -Werror -Wall -std=c99 -std=gnu99 -g
+#CFLAG= -Werror -O3 -Wall -std=c99 -std=gnu99 -g
+CFLAG= -g
 
 HUFF_MAIN=mycode/huff.c
 UNHUFF_MAIN=mycode/unhuff.c
