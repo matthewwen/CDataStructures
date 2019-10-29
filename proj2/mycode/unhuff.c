@@ -7,20 +7,23 @@
 
 FREE_TREE()
 
-bool f_test(node_t * curr, bit_t stack, uint64_t com_s, FILE * fp, FILE * fp_w);
-void v_test(node_t * head, bit_t stack, uint64_t com_s, FILE * fp, FILE * fp_w) {
-	while (ftell(fp_w) < com_s) {
-		f_test(head, stack, com_s, fp, fp_w);
+bool f_test(node_t * curr, bit_t stack, uint64_t * com_s, FILE * fp, FILE * fp_w);
+void v_test(node_t * head, uint64_t com_s, FILE * fp, FILE * fp_w) {
+	uint8_t stack = 0, size = 0;
+	bool alloc_more;
+	for (alloc_more = true; alloc_more;) {
+		alloc_more = f_test(head, (bit_t) {.stack = &stack, .size = &size}, &com_s, fp, fp_w);
 	}
 }
 
-bool f_test(node_t * curr, bit_t stack, uint64_t com_s, FILE * fp, FILE * fp_w) {
+bool f_test(node_t * curr, bit_t stack, uint64_t * com_s, FILE * fp, FILE * fp_w) {
 	if (curr->type == VALUE) {
 		fputc(curr->data.value->value, fp_w);
-		return true;
+		*com_s =(*com_s) - 1;
+		return (*com_s) > 0;
 	}
 	if (*stack.size == 0) {
-		if (ftell(fp_w) >= com_s) {
+		if ((*com_s) <= 0) {
 			return false;
 		}
 		fread(stack.stack, sizeof(*stack.stack), 1, fp);
@@ -104,9 +107,7 @@ int main(int argc, char* argv[]) {
 		node_t * head = create_table(&s, &s_size, fp);
 
 		// run data
-		s = 0;
-		s_size = 0;
-		v_test(head, (bit_t) {.stack = &s, .size = &s_size}, h->decompressed_size, fp, fp_w);
+		v_test(head, h->decompressed_size, fp, fp_w);
 		fclose(fp);
 		free(h);
 		free_tree(&head);
