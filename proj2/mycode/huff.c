@@ -167,11 +167,9 @@ int main(int argc, char* argv[]) {
 		uint8_t buffer_size = 0;
 		fseek(fp, 0, SEEK_SET);
 
-		size_t actual_size = 0;
 		for (;(idx = fgetc(fp)) != EOF;) {
 			value_t value = h->values[idx];
 			add_stack(&buffer, &buffer_size, value.loc, value.numbit, write_fp);
-			actual_size += value.numbit;
 		}
     	buffer = buffer << ((sizeof(buffer) * 8) - buffer_size);
 		fwrite(&buffer, sizeof(buffer), 1, write_fp);
