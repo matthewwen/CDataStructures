@@ -150,16 +150,13 @@ int main(int argc, char* argv[]) {
 		FILE * write_fp = fopen(n_name, "w");
 
 		// write header into file
-		size_t com_size, h_size, dec_size;
-		fwrite(h, (com_size = sizeof(h->compressed_size)) + 
-		          (h_size   = sizeof(h->header_size)) + 
-				  (dec_size = sizeof(h->decompressed_size)), 1, write_fp);
+		size_t dec_size;
+		fwrite(&h->decompressed_size, (dec_size = sizeof(h->decompressed_size)), 1, write_fp);
 		uint8_t stack = 0;
 		uint8_t size  = 0;
 		write_header(nhead, &stack, &size, write_fp);
 		PUSH_FRONT(stack, size);
 		fwrite(&stack, sizeof(stack), 1, write_fp);
-		h->header_size = ftell(write_fp);
 
 		// write data into file
 		int idx; 
@@ -174,14 +171,7 @@ int main(int argc, char* argv[]) {
 		PUSH_FRONT(buffer, buffer_size);
 		fwrite(&buffer, sizeof(buffer), 1, write_fp);
 
-		h->compressed_size = ftell(write_fp);
 		free_tree(&nhead);
-
-		// edit the header
-		fseek(write_fp, 0L, SEEK_SET);
-		fwrite(&h->compressed_size, com_size, 1, write_fp);
-		fwrite(&h->header_size, h_size, 1, write_fp);
-		fwrite(&h->decompressed_size, dec_size, 1, write_fp);
 
 		// clean up
 		fclose(write_fp);

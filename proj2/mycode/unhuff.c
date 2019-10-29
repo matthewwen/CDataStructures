@@ -80,13 +80,24 @@ int main(int argc, char* argv[]) {
 	bool input_valid = false;
 	if ((input_valid = (argc == 2))) {
 		FILE * fp = fopen(argv[1], "r");
+
+		// check if it is my huffman
+		char is_huff[5];
+		if (strlen(argv[1]) < 4) {
+			return EXIT_FAILURE;
+		}
+		memcpy(is_huff, (argv[1] + strlen(argv[1]) - 4), sizeof(is_huff));
+		if (strcmp(is_huff, "huff") != 0) {
+			return EXIT_FAILURE;
+		}
+		
+		// set up new information about file
 		NEW_FILE(nname, argv[1], ".unhuff")
 		FILE * fp_w = fopen(nname, "w");
 		header_t * h = malloc(sizeof(*h));
-		size_t com_size, h_size, dec_size;
-		fread(h, (com_size = sizeof(h->compressed_size)) + 
-		         (h_size   = sizeof(h->header_size)) + 
-				 (dec_size = sizeof(h->decompressed_size)), 1, fp);
+		size_t dec_size;
+
+		fread(&h->decompressed_size, (dec_size = sizeof(h->decompressed_size)), 1, fp);
 				
 		// change
 		uint8_t s = 0, s_size = 0;
