@@ -91,8 +91,6 @@ int main(int argc, char* argv[]) {
 		// change
 		uint8_t s = 0, s_size = 0;
 		node_t * head = create_table(&s, &s_size, fp);
-		printf("location: %d, expected: %d\n", ftell(fp), h->header_size);
-		//print_btree(head);
 
 		// run data
 		s = 0;

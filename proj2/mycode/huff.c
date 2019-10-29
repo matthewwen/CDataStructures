@@ -92,7 +92,6 @@ void assign_loc(node_t * head, uint64_t loc, int size){
 	}
 	else if (head != NULL && head->type == VALUE) {
 		head->data.value->loc = loc;
-		//PUSH_FRONT(head->data.value->loc, size);
 		head->data.value->numbit = size;
 	}
 }
@@ -184,7 +183,6 @@ int main(int argc, char* argv[]) {
 		fwrite(&h->compressed_size, com_size, 1, write_fp);
 		fwrite(&h->header_size, h_size, 1, write_fp);
 		fwrite(&h->decompressed_size, dec_size, 1, write_fp);
-		printf("compressed: %ld, header: %ld, decompressed: %ld\n", h->compressed_size, h->header_size, h->decompressed_size);
 
 		// clean up
 		fclose(write_fp);
