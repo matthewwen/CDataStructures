@@ -7,34 +7,39 @@
 
 FREE_TREE()
 
-bool f_test(node_t * curr, bit_t stack, uint64_t * com_s, FILE * fp, FILE * fp_w);
-void v_test(node_t * head, uint64_t com_s, FILE * fp, FILE * fp_w) {
+bool f_test(node_t * curr, bit_t stack, FILE * fp, FILE * fp_w);
+void v_test(node_t * head, FILE * fp, FILE * fp_w) {
 	uint8_t stack = 0, size = 0;
 	bool alloc_more;
 	for (alloc_more = true; alloc_more;) {
-		alloc_more = f_test(head, (bit_t) {.stack = &stack, .size = &size}, &com_s, fp, fp_w);
+		alloc_more = f_test(head, (bit_t) {.stack = &stack, .size = &size}, fp, fp_w);
 	}
 }
 
-bool f_test(node_t * curr, bit_t stack, uint64_t * com_s, FILE * fp, FILE * fp_w) {
+bool f_test(node_t * curr, bit_t stack, FILE * fp, FILE * fp_w) {
 	if (curr->type == VALUE) {
-		fputc(curr->data.value->value, fp_w);
-		*com_s =(*com_s) - 1;
-		return (*com_s) > 0;
+		bool is_valid;
+		if ((is_valid = (curr->data.value->value != 0))) {
+			fputc(curr->data.value->value, fp_w);
+		}
+		else {
+			printf("I am at the end\n");
+		}
+		return is_valid;
 	}
 	if (*stack.size == 0) {
-		if ((*com_s) <= 0) {
+		int num_byte = fread(stack.stack, sizeof(*stack.stack), 1, fp);
+		*stack.size = 8 * sizeof(*stack.stack);
+		if (num_byte == 0) {
 			return false;
 		}
-		fread(stack.stack, sizeof(*stack.stack), 1, fp);
-		*stack.size = 8 * sizeof(*stack.stack);
 	}
 	int dir;
 	PUSH_BIT(dir, *stack.stack, *stack.size);
 	if (dir == 0) {
-		return f_test(curr->data.i->left, stack, com_s, fp, fp_w);
+		return f_test(curr->data.i->left, stack, fp, fp_w);
 	}
-	return f_test(curr->data.i->right, stack, com_s, fp, fp_w);
+	return f_test(curr->data.i->right, stack, fp, fp_w);
 }
 
 uint8_t get_char(uint8_t * s, uint8_t * s_size, FILE * fp_r) {
@@ -52,6 +57,12 @@ uint8_t get_char(uint8_t * s, uint8_t * s_size, FILE * fp_r) {
 		PUSH_BIT(i, *s, *s_size);
 		APPEND_BIT(c, i);
 	}
+
+	// debug start
+	if (c == 0) {
+		printf("adding NULL to table\n");
+	}
+	// debug end
 
 	return c;
 }
@@ -74,6 +85,11 @@ node_t * create_table(uint8_t * s, uint8_t * s_size, FILE * fp_r) {
 	else {
 		value_t * v_node = malloc(sizeof(*v_node));
 		*v_node = (value_t) {.value = get_char(s, s_size, fp_r)};
+		// debug start
+		if (v_node->value == 0) {
+			printf("okay so you are in bro\n");
+		}
+		// debug end
 		n_node->data.value = v_node;
 	}
 	return n_node;
@@ -107,7 +123,7 @@ int main(int argc, char* argv[]) {
 		node_t * head = create_table(&s, &s_size, fp);
 
 		// run data
-		v_test(head, h->decompressed_size, fp, fp_w);
+		v_test(head, fp, fp_w);
 		fclose(fp);
 		free(h);
 		free_tree(&head);

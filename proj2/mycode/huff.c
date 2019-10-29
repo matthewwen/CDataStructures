@@ -38,6 +38,9 @@ header_t * create_table(FILE * fp) {
 	while (((i = fgetc(fp)) != EOF)) {
 		header->values[(unsigned int) i].weight += 1;
 	}
+	printf("NULL weight: %d\n", header->values[0].weight);
+	// adding NULL at the end
+	header->values[0].weight = 1;
 
 	return header;
 }
@@ -164,10 +167,16 @@ int main(int argc, char* argv[]) {
 		uint8_t buffer_size = 0;
 		fseek(fp, 0, SEEK_SET);
 
+		value_t value;
 		for (;(idx = fgetc(fp)) != EOF;) {
-			value_t value = h->values[idx];
+			value = h->values[idx];
 			add_stack(&buffer, &buffer_size, value.loc, value.numbit, write_fp);
 		}
+		// adding NULL or EOF
+		value = h->values[0];
+		add_stack(&buffer, &buffer_size, value.loc, value.numbit, write_fp);
+
+		// add the remaining
 		PUSH_FRONT(buffer, buffer_size);
 		fwrite(&buffer, sizeof(buffer), 1, write_fp);
 

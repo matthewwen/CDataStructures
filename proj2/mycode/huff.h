@@ -36,9 +36,7 @@ typedef struct node_t{
 }node_t;
 
 typedef struct{
-    uint64_t compressed_size;
-    uint64_t header_size;
-    uint64_t decompressed_size;
+    uint32_t decompressed_size;
     value_t  values[NUM_CHAR];
 	node_t * order[NUM_CHAR];
     int buffer_end;
