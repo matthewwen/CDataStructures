@@ -66,7 +66,6 @@ node_t * f_test(header_t * head) {
 	// saving inside of header
 	head->buffer_end = last_pos;
 
-
 	// add element into binary tree
 	node_t * holder;
 	for (;last_pos > 1; last_pos--) {
@@ -123,13 +122,14 @@ void add_stack(uint8_t * s, uint8_t * s_size, uint8_t e, uint8_t e_size, FILE * 
 	PUSH_FRONT(e, e_size);
 	for (;e_size > 0; ) {
 		if ((*s_size) ==  8) {
-			fwrite(s, sizeof(s), 1, fp);
-			(*s) = 0, (*s_size) = 0;
+			fwrite(s, sizeof(*s), 1, fp);
+			(*s) = 0;
+			(*s_size) = 0;
 		}
 		uint8_t push;
 		PUSH_BIT(push, e, e_size);
 		APPEND_BIT(*s, push);
-		(*s_size)++;
+		(*s_size) = (*s_size) + 1;
 	}	
 }
 
@@ -167,15 +167,12 @@ int main(int argc, char* argv[]) {
 		uint8_t buffer_size = 0;
 		fseek(fp, 0, SEEK_SET);
 
-		int avg_size = 0;
-		int count = 0;
+		size_t actual_size = 0;
 		for (;(idx = fgetc(fp)) != EOF;) {
 			value_t value = h->values[idx];
-			avg_size += size;
-			count++;
 			add_stack(&buffer, &buffer_size, value.loc, value.numbit, write_fp);
+			actual_size += value.numbit;
 		}
-		printf("\navg size: %d\n", avg_size / count);
     	buffer = buffer << ((sizeof(buffer) * 8) - buffer_size);
 		fwrite(&buffer, sizeof(buffer), 1, write_fp);
 		h->compressed_size = ftell(write_fp);
