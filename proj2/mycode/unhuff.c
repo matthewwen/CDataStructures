@@ -26,7 +26,9 @@ bool f_test(node_t * curr, bit_t stack, uint64_t * com_s, FILE * fp, FILE * fp_w
 		if ((*com_s) <= 0) {
 			return false;
 		}
-		fread(stack.stack, sizeof(*stack.stack), 1, fp);
+		if (fread(stack.stack, sizeof(*stack.stack), 1, fp) == 0){
+			return false;	
+		}
 		*stack.size = 8 * sizeof(*stack.stack);
 	}
 	int dir;
@@ -45,7 +47,9 @@ uint8_t get_char(uint8_t * s, uint8_t * s_size, FILE * fp_r) {
 		APPEND_BIT(c, i);
 	}
 
-	fread(s, sizeof(*s), 1, fp_r);
+	if (fread(s, sizeof(*s), 1, fp_r) == 0) {
+		return 0;
+	}
 	*s_size = 8 * sizeof(*s_size);
 
 	for (;cs < 8; cs++) {
@@ -58,12 +62,17 @@ uint8_t get_char(uint8_t * s, uint8_t * s_size, FILE * fp_r) {
 
 node_t * create_table(uint8_t * s, uint8_t * s_size, FILE * fp_r) {
 	if ((*s_size) == 0) {
-		fread(s, sizeof(*s), 1, fp_r);
+		if (fread(s, sizeof(*s), 1, fp_r) == 0) {
+			return NULL;
+		}
 		*s_size = sizeof(*s) * 8;
 	}
 	int i;
 	PUSH_BIT(i, *s, *s_size);
 	node_t * n_node = malloc(sizeof(*n_node));
+	if (n_node == NULL) {
+		return NULL;
+	}
 	*n_node = (node_t) {.type = (i == 1 ? VALUE: NODE)};
 	if (i == 0) {
 		i_t * i_node = malloc(sizeof(*i_node));
@@ -96,15 +105,26 @@ int main(int argc, char* argv[]) {
 		
 		// set up new information about file
 		NEW_FILE(nname, argv[1], ".unhuff")
+		if (nname == NULL) {
+			return EXIT_FAILURE;
+		}
 		FILE * fp_w = fopen(nname, "w");
 		header_t * h = malloc(sizeof(*h));
+		if (fp_w == NULL || h == NULL)  {
+			return EXIT_FAILURE;
+		}
 		size_t dec_size;
 
-		fread(&h->decompressed_size, (dec_size = sizeof(h->decompressed_size)), 1, fp);
+		if (fread(&h->decompressed_size, (dec_size = sizeof(h->decompressed_size)), 1, fp) == 0) {
+			return EXIT_FAILURE;
+		}
 				
 		// change
 		uint8_t s = 0, s_size = 0;
 		node_t * head = create_table(&s, &s_size, fp);
+		if (head == NULL) {
+			return EXIT_FAILURE;
+		}
 
 		// run data
 		v_test(head, h->decompressed_size, fp, fp_w);

@@ -12,6 +12,9 @@ node_t * append_tree(node_t * n1, node_t * n2) {
 	/* allocate memory*/
 	i_t * n_i;
 	node_t * n_node = malloc(sizeof(*n_node) + sizeof(*n_i));
+	if (n_node == NULL) {
+		return n_node;
+	}
 	n_i             = (i_t *) (n_node + 1);
 
 	/* set up new intersection and left / right*/
@@ -31,6 +34,9 @@ node_t * append_tree(node_t * n1, node_t * n2) {
 header_t * create_table(FILE * fp) {
 	size_t memory_size;
 	header_t * header = malloc((memory_size = sizeof(*header)));
+	if (header == NULL) {
+		return NULL;
+	}
 	memset(header, 0, memory_size);
 
 	char i;
@@ -55,6 +61,9 @@ node_t * f_test(header_t * head) {
 		if ((pos = &head->values[i])->weight != 0) {
 			pos->value = i;
 			n_node     = malloc(sizeof(*n_node));
+			if (n_node == NULL) {
+				return NULL;
+			}
 			*n_node    = (node_t) {.type = VALUE, .data = (data_t) {.value = pos}};
 			for (j = last_pos; j > 0 && order_list[j - 1]->data.value->weight < pos->weight; j--) {
 				order_list[j] = order_list[j - 1];
@@ -70,6 +79,9 @@ node_t * f_test(header_t * head) {
 	node_t * holder;
 	for (;last_pos > 1; last_pos--) {
 		n_node = append_tree(order_list[last_pos - 1], order_list[last_pos - 2]);
+		if (n_node == NULL) {
+			return NULL;
+		}
 		order_list[last_pos - 1] = NULL;
 		order_list[last_pos - 2] = NULL;
 		for (j = last_pos - 2; j > 0 && ((holder = order_list[j - 1])->type == VALUE ?
@@ -139,7 +151,13 @@ int main(int argc, char* argv[]) {
 	if ((input_valid = (argc == 2))) {
 		// count occurance
 		FILE * fp = fopen(argv[1], "r");
+		if (fp == NULL) {
+			return EXIT_FAILURE;
+		}
 		header_t * h = create_table(fp);
+		if (h == NULL) {
+			return EXIT_FAILURE;
+		}
 		h->decompressed_size = ftell(fp);
 		fseek(fp, 0L, SEEK_SET);
 
@@ -147,7 +165,13 @@ int main(int argc, char* argv[]) {
 		nhead = f_test(h);
 
 		NEW_FILE(n_name, argv[1], ".huff")
+		if (n_name == NULL) {
+			return EXIT_FAILURE;
+		}
 		FILE * write_fp = fopen(n_name, "w");
+		if (write_fp == NULL) {
+			return EXIT_FAILURE;
+		}
 
 		// write header into file
 		size_t dec_size;
