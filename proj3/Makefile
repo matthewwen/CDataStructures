@@ -24,7 +24,7 @@ $(NAME):
 	$(CC) $(CFLAG) -o $(NAME) -I mycode
 
 clean:
-	rm -rf $(NAME) 
+	rm -rf $(NAME) $(M2)
 
 add:
 	git add Makefile $(PDF) $(A_SRC)
