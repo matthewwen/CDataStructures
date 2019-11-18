@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
         Node_t * nodes = list_node.heap;
         Edge_t * edges = list_edge.heap;
         for (i = 0; i < list_node.size; i++) {
-            printf("%-2d: ", i);
+            printf("%2d: ", i);
             for (j = nodes[i].idx; j < list_edge.size && edges[j].node_idx == i; j++) {
                 printf("%2d ", edges[j].leaf);
             }
@@ -82,7 +82,6 @@ int main(int argc, char* argv[]) {
         free(nodes);
         free(edges);
     }
-    printf("%s\n", is_valid ? "Success": "Failure");
 	
 	return is_valid ? EXIT_SUCCESS: EXIT_FAILURE;
 }
