@@ -74,6 +74,11 @@ int main(int argc, char* argv[]) {
         Edge_t * edges = list_edge.heap;
         for (i = 0; i < list_node.size; i++) {
             printf("%2d: ", i);
+            for (j = 0; j < list_edge.size; j++) {
+                if (edges[j].leaf == i) {
+                    printf("%2d ", edges[j].node_idx);
+                }
+            }
             for (j = nodes[i].idx; j < list_edge.size && edges[j].node_idx == i; j++) {
                 printf("%2d ", edges[j].leaf);
             }
