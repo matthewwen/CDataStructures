@@ -1,13 +1,17 @@
 NAME=proj3
 M2=adjacent
 
-CFLAG= -Werror -O3 -Wall -std=c99 -std=gnu99 -g
+CFLAG= -Werror -Wall -std=c99 -std=gnu99 -g
+#-g -O3 
 
 MAIN=mycode
 HEADER=mycode
 INCLUDE=mycode
 
 A_SRC=mycode/adjacent.c
+
+SRC=mycode/source.c\
+    main.c
 
 PDF=milestone1.pdf
 	#report.pdf
@@ -26,7 +30,7 @@ USA=usa.txt
 LOGFILE=$(LOGPATH)/$(shell date --iso=seconds) 
 
 all: 
-	make $(M2) 
+	make $(NAME) 
 
 $(M2):
 	$(CC) $(A_SRC) $(CFLAG) -o $(M2)
@@ -34,8 +38,11 @@ $(M2):
 atest:
 	./$(M2) $(MAP)
 
+test:
+	./$(NAME) $(MAP)
+
 $(NAME):
-	$(CC) $(CFLAG) -o $(NAME) -I mycode
+	$(CC) $(CFLAG) $(SRC) -o $(NAME) -I mycode
 
 clean:
 	rm -rf $(NAME) $(M2)
