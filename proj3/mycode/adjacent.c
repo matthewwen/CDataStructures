@@ -5,36 +5,36 @@
 
 typedef struct{
     struct {
-        int x;
-        int y;
+        long x;
+        long y;
     } coord;
-    int idx;
+    long idx;
 }Node_t;
 
 typedef struct{
-    int node_idx;
-    int leaf; 
+    long node_idx;
+    long leaf; 
 }Edge_t;
 
 typedef struct{
     void * heap;
-    int size;
+    long size;
 }ListNode;
 
 bool read_cord(char * file_name, ListNode * a_node, ListNode * a_edge) {
     bool isvalid;
     FILE * fp;
-    int num_node, num_edge, i;
+    long num_node, num_edge, i;
     if ((isvalid = ((fp = fopen(file_name, "r")) != NULL))) {
         size_t alloc_size;
-        fscanf(fp, "%d %d", &num_node, &num_edge);
+        fscanf(fp, "%ld %ld", &num_node, &num_edge);
 
         Node_t * nodes = malloc((alloc_size = (num_node * sizeof(*nodes))));
         if ((isvalid = (nodes != NULL))) {
             memset(nodes, 0, alloc_size);
             for(i = 0; i < num_node; i++) {
-                int x, y, idx;
-                fscanf(fp, "%d %d %d", &idx, &x, &y);
+                long x, y, idx;
+                fscanf(fp, "%ld %ld %ld", &idx, &x, &y);
                 nodes[idx] = (Node_t) {.coord = {.x = x, .y = y}};
             }
         }
@@ -43,10 +43,10 @@ bool read_cord(char * file_name, ListNode * a_node, ListNode * a_edge) {
         if (isvalid && 
            (isvalid = (edge != NULL))) {
             memset(edge, 0, alloc_size);
-            int pidx = -1;
+            long pidx = -1;
             for (i = 0; i < num_edge; i++) {
-                int nidx, lidx;
-                fscanf(fp, "%d %d", &nidx, &lidx);
+                long nidx, lidx;
+                fscanf(fp, "%ld %ld", &nidx, &lidx);
                 if (pidx != nidx) {
                     pidx = nidx;
                     nodes[nidx].idx = i;
@@ -64,7 +64,7 @@ bool read_cord(char * file_name, ListNode * a_node, ListNode * a_edge) {
 
 int main(int argc, char* argv[]) {
     bool is_valid;
-    int i, j;
+    long i, j;
     if ((is_valid = (argc > 1))) {
         ListNode list_node; ListNode list_edge;
         is_valid = read_cord(argv[1], &list_node, &list_edge);
@@ -73,14 +73,14 @@ int main(int argc, char* argv[]) {
         Node_t * nodes = list_node.heap;
         Edge_t * edges = list_edge.heap;
         for (i = 0; i < list_node.size; i++) {
-            printf("%2d: ", i);
+            printf("%2ld: ", i);
             for (j = 0; j < list_edge.size; j++) {
                 if (edges[j].leaf == i) {
-                    printf("%2d ", edges[j].node_idx);
+                    printf("%2ld ", edges[j].node_idx);
                 }
             }
             for (j = nodes[i].idx; j < list_edge.size && edges[j].node_idx == i; j++) {
-                printf("%2d ", edges[j].leaf);
+                printf("%2ld ", edges[j].leaf);
             }
             printf("\n");
         }
