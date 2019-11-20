@@ -64,7 +64,7 @@ bool read_cord(char * file_name, ListNode * a_node, ListNode * a_edge) {
 
 int main(int argc, char* argv[]) {
     bool is_valid;
-    long i, j;
+    long i, j, k;
     if ((is_valid = (argc > 1))) {
         ListNode list_node; ListNode list_edge;
         is_valid = read_cord(argv[1], &list_node, &list_edge);
@@ -76,7 +76,16 @@ int main(int argc, char* argv[]) {
             printf("%2ld: ", i);
             for (j = 0; j < list_edge.size; j++) {
                 if (edges[j].leaf == i) {
-                    printf("%2ld ", edges[j].node_idx);
+					long value = edges[j].node_idx;
+					bool already_exist = false;
+            		for (k = nodes[i].idx; k < list_edge.size && edges[k].node_idx == i; k++) {
+						if (edges[k].leaf == value) {
+							already_exist = true;
+						}
+					}
+					if (!already_exist) {
+                    	printf("%2ld ", value);
+					}
                 }
             }
             for (j = nodes[i].idx; j < list_edge.size && edges[j].node_idx == i; j++) {
