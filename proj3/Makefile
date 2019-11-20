@@ -12,6 +12,17 @@ A_SRC=mycode/adjacent.c
 PDF=milestone1.pdf
 	#report.pdf
 
+MAP=testfiles/map5x5.txt
+QUERY=query5x5.txt
+ROADCALC=roadCA-large-coordinates.txt
+ROADCA=roadCA.txt
+ROADCA0=roadCA-v0.txt
+SHORTPATH=shortestpath
+USA100=usa100.txt
+USA10=usa10.txt
+USA1=usa1.txt
+USA=usa.txt
+
 LOGFILE=$(LOGPATH)/$(shell date --iso=seconds) 
 
 all: 
@@ -19,6 +30,9 @@ all:
 
 $(M2):
 	$(CC) $(A_SRC) $(CFLAG) -o $(M2)
+
+atest:
+	./$(M2) $(MAP)
 
 $(NAME):
 	$(CC) $(CFLAG) -o $(NAME) -I mycode
@@ -35,4 +49,4 @@ ms1submit:
 	turnin -c ece368 -p proj3ms1 milestone1.pdf
 
 ms2submit:
-	turnin -c ece368 -p proj3ms2 adjacent.c
+	turnin -c ece368 -p proj3ms2 mycode/adjacent.c
