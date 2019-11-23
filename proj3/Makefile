@@ -49,7 +49,7 @@ clean:
 	rm -rf $(NAME) $(M2)
 
 add:
-	git add Makefile $(PDF) $(A_SRC)
+	git add Makefile $(PDF) $(A_SRC) $(SRC)
 	git commit -m "$(LOGFILE)"
 	git push origin master
 
