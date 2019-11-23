@@ -2,7 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <math.h>
 #include "header.h"
+
+int get_distance(Node_t * nodes, int idx1, int idx2);
 
 bool read_cord(char * file_name, ListNode * a_node, ListNode * a_edge) {
     bool isvalid;
@@ -88,5 +91,27 @@ bool read_cord(char * file_name, ListNode * a_node, ListNode * a_edge) {
 }
 
 void dijkstra(int node1, int node2, ListNode list_node, ListNode list_edge) {
+
+    size_t alloc_size;
+    int * heap = malloc(alloc_size = list_node.size * sizeof(*heap));
+    memset(heap, 0, alloc_size);
+
+    Node_t * nodes = list_node.heap;
+    Edge_t * edge  = list_node.heap;
+
+    // printf("%d\n", (int) sqrt(25));
+    free(heap);
+}
+
+int set_distance(Node_t * nodes, int idx1, int idx2) {
+    int x_diff = nodes[idx1].coord.x - nodes[idx2].coord.x;
+    int y_diff = nodes[idx1].coord.y - nodes[idx2].coord.y;
+
+    double dist_square = (x_diff * x_diff) + (y_diff * y_diff);
+    int dist           = sqrt(dist_square);
+
+    nodes[idx1].distance = dist;
+
+    return dist;
 }
 /* vim: set tabstop=4 shiftwidth=4 fileencoding=utf-8 noexpandtab: */

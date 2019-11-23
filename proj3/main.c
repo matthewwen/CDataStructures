@@ -13,6 +13,8 @@ int main(int argc, char* argv[]) {
         Node_t * nodes = list_node.heap;
         Edge_t * edges = list_edge.heap;
         printf("Done Creating Nodes\n");
+
+        dijkstra(0, 1, list_node, list_edge);
         // for (i = 0; i < list_node.size; i++) {
         //     printf("%2ld: ", i);
         //     llong_t * curr;

@@ -1,7 +1,7 @@
 NAME=proj3
 M2=adjacent
 
-CFLAG= -Wall -std=c99 -std=gnu99
+CFLAG= -Wall -std=c99 -std=gnu99 
 #-g -O3 -Werror
 
 MAIN=mycode
@@ -40,10 +40,10 @@ atest:
 	./$(M2) $(MAP)
 
 test:
-	./$(NAME) $(DIR)/$(ROADCA)
+	./$(NAME) $(DIR)/$(MAP)
 
 $(NAME):
-	$(CC) $(CFLAG) $(SRC) -o $(NAME) -I mycode
+	$(CC) $(CFLAG) $(SRC) -o $(NAME) -I mycode -lm
 
 clean:
 	rm -rf $(NAME) $(M2)
