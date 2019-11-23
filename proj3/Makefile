@@ -1,8 +1,8 @@
 NAME=proj3
 M2=adjacent
 
-CFLAG= -Werror -Wall -std=c99 -std=gnu99 -g
-#-g -O3 
+CFLAG= -Wall -std=c99 -std=gnu99
+#-g -O3 -Werror
 
 MAIN=mycode
 HEADER=mycode
@@ -16,7 +16,8 @@ SRC=mycode/source.c\
 PDF=milestone1.pdf
 	#report.pdf
 
-MAP=testfiles/map5x5.txt
+DIR=testfiles
+MAP=map5x5.txt
 QUERY=query5x5.txt
 ROADCALC=roadCA-large-coordinates.txt
 ROADCA=roadCA.txt
@@ -39,7 +40,7 @@ atest:
 	./$(M2) $(MAP)
 
 test:
-	./$(NAME) $(MAP)
+	./$(NAME) $(DIR)/$(ROADCA)
 
 $(NAME):
 	$(CC) $(CFLAG) $(SRC) -o $(NAME) -I mycode
