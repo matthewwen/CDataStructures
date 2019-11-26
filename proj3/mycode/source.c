@@ -7,7 +7,7 @@
 
 int get_distance(Node_t * nodes, int idx1, int idx2);
 void update_distance(Node_t * nodes, Edge_t * edges, int idx, int diff);
-void append_element(ListNode list_node, ListNode list_heap, int idx);
+void append_element(ListNode list_node, ListNode * list_heap, int idx);
 
 bool read_cord(char * file_name, ListNode * a_node, ListNode * a_edge) {
     bool isvalid;
@@ -97,7 +97,41 @@ void dijkstra(int node1, int node2, ListNode list_node, ListNode list_edge) {
     int * heap = malloc(alloc_size = list_node.size * sizeof(*heap));
     memset(heap, 0, alloc_size);
     ListNode list_heap = {.heap = heap, .size = list_node.size, .idx = 0};
-    append_element(list_node, list_heap, 0);
+    // this is for gdb
+    int i;
+    Node_t * nodes = list_node.heap;
+
+    nodes[0].distance = 100;
+    append_element(list_node, &list_heap, 0);
+    printf("-----\n");
+    for (i = 0; i < list_heap.idx; i++) {
+        printf("%d ", nodes[heap[i]].distance);
+    }
+    printf("\n");
+
+    nodes[1].distance = 50;
+    append_element(list_node, &list_heap, 1);
+    printf("-----\n");
+    for (i = 0; i < list_heap.idx; i++) {
+        printf("%d ", nodes[heap[i]].distance);
+    }
+    printf("\n");
+
+    nodes[2].distance = 30;
+    append_element(list_node, &list_heap, 2);
+    printf("-----\n");
+    for (i = 0; i < list_heap.idx; i++) {
+        printf("%d ", nodes[heap[i]].distance);
+    }
+    printf("\n");
+
+    nodes[3].distance = 150;
+    printf("-----\n");
+    append_element(list_node, &list_heap, 3);
+    for (i = 0; i < list_heap.idx; i++) {
+        printf("%d ", nodes[heap[i]].distance);
+    }
+    printf("\n");
 
     // Node_t * nodes = list_node.heap;
     // Edge_t * edge  = list_node.heap;
@@ -106,21 +140,21 @@ void dijkstra(int node1, int node2, ListNode list_node, ListNode list_edge) {
     free(heap);
 }
 
-void append_element(ListNode list_node, ListNode list_heap, int idx) {
+void append_element(ListNode list_node, ListNode * list_heap, int idx) {
     Node_t * nodes = list_node.heap;
-    int * heap     = list_heap.heap;
-    int curr_idx   = list_heap.idx;
+    int * heap     = list_heap->heap;
+    int curr_idx   = list_heap->idx;
     heap[curr_idx] = idx;
 
     int temp, node_idx = -1;
     for (;curr_idx >= 0 && 
-          nodes[heap[(node_idx = ((curr_idx - 1) / 2))]].distance < nodes[heap[curr_idx]].distance; curr_idx = node_idx) {
+          nodes[heap[(node_idx = ((curr_idx - 1) / 2))]].distance > nodes[heap[curr_idx]].distance; curr_idx = node_idx) {
         temp           = heap[node_idx];
         heap[node_idx] = heap[curr_idx];
         heap[curr_idx] = temp;
     }
 
-    list_heap.idx = list_heap.idx + 1;
+    list_heap->idx = list_heap->idx + 1;
 }
 
 int get_min(ListNode list_node, ListNode list_heap) {
@@ -133,8 +167,18 @@ int get_min(ListNode list_node, ListNode list_heap) {
     list_heap.idx = size;
 
     // still need to implement
-    int i = 0;
-    for (;heap[i].)
+    int temp;
+    int left_dist, right_dist;
+    int left_idx, right_idx, i = 0;
+    bool is_left;
+    for (;(nodes[heap[i]].distance < (left_dist  = nodes[heap[left_idx  = (2 * i) + 1]].distance) || 
+           nodes[heap[i]].distance < (right_dist = nodes[heap[right_idx = (2 * i) + 2]].distance)) && 
+           left_idx < size; i = is_left ? left_idx: right_idx) {
+              is_left = (left_dist > right_dist) || (right_idx > size);
+              temp    = heap[i];
+              heap[i] = is_left ? heap[left_idx]: heap[right_idx];
+              heap[is_left ? left_idx: right_idx] = temp;
+          }
 
     return min;
 }
@@ -160,20 +204,5 @@ int get_distance(Node_t * nodes, int idx1, int idx2) {
 
     double dist_square = (x_diff * x_diff) + (y_diff * y_diff);
     return sqrt(dist_square);
-}
-
-// delete this for this commit
-void update_distance(Node_t * nodes, Edge_t * edges, int idx, int diff) {
-    if (nodes[idx].distance != -1) {
-        nodes[idx].distance -= diff;
-        int i;
-        for (i = nodes[idx].idx; edges[i].node_idx != idx; i++) {
-            update_distance(nodes, edges, edges[i].leaf, diff);
-        }
-        llong_t * curr = nodes[idx].adj_head;
-        for (;curr != NULL; curr = curr->next) {
-            update_distance(nodes, edges, curr->idx, diff);
-        }
-    }
 }
 /* vim: set tabstop=4 shiftwidth=4 fileencoding=utf-8 noexpandtab: */

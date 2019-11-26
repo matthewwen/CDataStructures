@@ -9,7 +9,6 @@ int main(int argc, char* argv[]) {
         is_valid = read_cord(argv[1], &list_node, &list_edge);
 
         // print out results
-        // Node_t * nodes = list_node.heap;
         // Edge_t * edges = list_edge.heap;
         printf("Done Creating Nodes\n");
 

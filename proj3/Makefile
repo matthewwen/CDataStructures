@@ -1,8 +1,8 @@
 NAME=proj3
 M2=adjacent
 
-CFLAG= -Wall -std=c99 -std=gnu99 
-#-g -O3 -Werror
+CFLAG= -Wall -std=c99 -std=gnu99 -g
+#-O3 -Werror
 
 MAIN=mycode
 HEADER=mycode
