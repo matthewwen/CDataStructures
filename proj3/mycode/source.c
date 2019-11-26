@@ -6,6 +6,8 @@
 #include "header.h"
 
 int get_distance(Node_t * nodes, int idx1, int idx2);
+void update_distance(Node_t * nodes, Edge_t * edges, int idx, int diff);
+void append_element(ListNode list_node, ListNode list_heap, int idx);
 
 bool read_cord(char * file_name, ListNode * a_node, ListNode * a_edge) {
     bool isvalid;
@@ -91,27 +93,87 @@ bool read_cord(char * file_name, ListNode * a_node, ListNode * a_edge) {
 }
 
 void dijkstra(int node1, int node2, ListNode list_node, ListNode list_edge) {
-
     size_t alloc_size;
     int * heap = malloc(alloc_size = list_node.size * sizeof(*heap));
     memset(heap, 0, alloc_size);
+    ListNode list_heap = {.heap = heap, .size = list_node.size, .idx = 0};
+    append_element(list_node, list_heap, 0);
 
-    Node_t * nodes = list_node.heap;
-    Edge_t * edge  = list_node.heap;
+    // Node_t * nodes = list_node.heap;
+    // Edge_t * edge  = list_node.heap;
 
     // printf("%d\n", (int) sqrt(25));
     free(heap);
 }
 
-int set_distance(Node_t * nodes, int idx1, int idx2) {
+void append_element(ListNode list_node, ListNode list_heap, int idx) {
+    Node_t * nodes = list_node.heap;
+    int * heap     = list_heap.heap;
+    int curr_idx   = list_heap.idx;
+    heap[curr_idx] = idx;
+
+    int temp, node_idx = -1;
+    for (;curr_idx >= 0 && 
+          nodes[heap[(node_idx = ((curr_idx - 1) / 2))]].distance < nodes[heap[curr_idx]].distance; curr_idx = node_idx) {
+        temp           = heap[node_idx];
+        heap[node_idx] = heap[curr_idx];
+        heap[curr_idx] = temp;
+    }
+
+    list_heap.idx = list_heap.idx + 1;
+}
+
+int get_min(ListNode list_node, ListNode list_heap) {
+    Node_t * nodes = list_node.heap;
+    int * heap     = list_heap.heap;
+    int size       = list_heap.idx - 1;
+
+    int min       = heap[0];
+    heap[0]       = heap[list_heap.idx - 1];
+    list_heap.idx = size;
+
+    // still need to implement
+    int i = 0;
+    for (;heap[i].)
+
+    return min;
+}
+
+void free_nodes(Node_t * nodes, int size) {
+    int i;
+    for (i = 0; i < size; i++) {
+        llong_t * curr, * prev;
+        if ((curr = nodes[i].adj_head) != NULL) {
+            while (curr != NULL) {
+                prev = curr;
+                curr = curr->next;
+                free(prev);
+            }
+        }
+    }
+    free(nodes);
+}
+
+int get_distance(Node_t * nodes, int idx1, int idx2) {
     int x_diff = nodes[idx1].coord.x - nodes[idx2].coord.x;
     int y_diff = nodes[idx1].coord.y - nodes[idx2].coord.y;
 
     double dist_square = (x_diff * x_diff) + (y_diff * y_diff);
-    int dist           = sqrt(dist_square);
+    return sqrt(dist_square);
+}
 
-    nodes[idx1].distance = dist;
-
-    return dist;
+// delete this for this commit
+void update_distance(Node_t * nodes, Edge_t * edges, int idx, int diff) {
+    if (nodes[idx].distance != -1) {
+        nodes[idx].distance -= diff;
+        int i;
+        for (i = nodes[idx].idx; edges[i].node_idx != idx; i++) {
+            update_distance(nodes, edges, edges[i].leaf, diff);
+        }
+        llong_t * curr = nodes[idx].adj_head;
+        for (;curr != NULL; curr = curr->next) {
+            update_distance(nodes, edges, curr->idx, diff);
+        }
+    }
 }
 /* vim: set tabstop=4 shiftwidth=4 fileencoding=utf-8 noexpandtab: */
