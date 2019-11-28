@@ -134,6 +134,14 @@ void dijkstra(int node1, int node2, ListNode list_node, ListNode list_edge) {
     min = get_min(list_node, &list_heap);
     print_heap("removed min", list_node, list_heap);
     printf("min: %d\n", min);
+
+    min = get_min(list_node, &list_heap);
+    print_heap("removed min", list_node, list_heap);
+    printf("min: %d\n", min);
+
+    min = get_min(list_node, &list_heap);
+    print_heap("removed min", list_node, list_heap);
+    printf("min: %d\n", min);
     
     // Node_t * nodes = list_node.heap;
     // Edge_t * edge  = list_node.heap;
