@@ -134,6 +134,8 @@ void dijkstra(int node1, int node2, ListNode list_node, ListNode list_edge) {
         print_heap("remove element", list_node, list_heap);
         if ((not_found = (curr_idx != node2))) {
             for (i = nodes[curr_idx].idx; edges[i].node_idx == curr_idx; i++) {
+                printf("here\n");
+                printf("i: %d, curr_idx: %d, edges[i]: %ld\n", i, curr_idx, edges[i].node_idx);
                 new_distance = get_distance(nodes, curr_idx, edges[i].leaf) + nodes[curr_idx].distance;
                 if (nodes[edges[i].leaf].distance == 0 && edges[i].leaf != node1) {
                     nodes[edges[i].leaf].distance = new_distance;
