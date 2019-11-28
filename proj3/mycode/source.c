@@ -113,40 +113,39 @@ void dijkstra(int node1, int node2, ListNode list_node, ListNode list_edge) {
     memset(heap, 0, alloc_size);
     ListNode list_heap = {.heap = heap, .size = list_node.size, .idx = 0};
     Node_t * nodes = list_node.heap;
+    Edge_t * edges = list_edge.heap;
 
-    nodes[0].distance = 100;
-    append_element(list_node, &list_heap, 0);
-    print_heap("add 100", list_node, list_heap);
 
-    nodes[1].distance = 50;
-    append_element(list_node, &list_heap, 1);
-    print_heap("add 50", list_node, list_heap);
+    /* TODO
+    - Check to see if index is repeated
+    - Check smaller than or greater than values
+    - Done
+    */
 
-    nodes[2].distance = 30;
-    append_element(list_node, &list_heap, 2);
-    print_heap("add 30", list_node, list_heap);
+    bool not_found = true;
+    nodes[node1].distance = 0;
+    append_element(list_node, &list_heap, node1);
+    print_heap("add element", list_node, list_heap);
+    int i;
+    llong_t * curr;
+    while (not_found) {
+        int curr_idx = get_min(list_node, &list_heap);
+        print_heap("remove element", list_node, list_heap);
+        if ((not_found = (curr_idx != node2))) {
+            for (i = nodes[curr_idx].idx; edges[i].node_idx == curr_idx; i++) {
+                nodes[edges[i].leaf].distance = get_distance(nodes, curr_idx, edges[i].leaf) + nodes[curr_idx].distance;
+                append_element(list_node, &list_heap, edges[i].leaf);
+                print_heap("add element", list_node, list_heap);
+            }
+            for (curr = nodes[curr_idx].adj_head; curr != NULL; curr = curr->next) {
+                nodes[curr->idx].distance = get_distance(nodes, curr_idx, curr->idx) + nodes[curr_idx].distance;
+                append_element(list_node, &list_heap, curr->idx);
+                print_heap("add element", list_node, list_heap);
+            }
+        }
+        not_found = list_heap.idx != 0 && not_found;
+    }
 
-    nodes[3].distance = 150;
-    append_element(list_node, &list_heap, 3);
-    print_heap("add 150", list_node, list_heap);
-
-    int min;
-    min = get_min(list_node, &list_heap);
-    print_heap("removed min", list_node, list_heap);
-    printf("min: %d\n", min);
-
-    min = get_min(list_node, &list_heap);
-    print_heap("removed min", list_node, list_heap);
-    printf("min: %d\n", min);
-
-    min = get_min(list_node, &list_heap);
-    print_heap("removed min", list_node, list_heap);
-    printf("min: %d\n", min);
-    
-    // Node_t * nodes = list_node.heap;
-    // Edge_t * edge  = list_node.heap;
-
-    // printf("%d\n", (int) sqrt(25));
     free(heap);
 }
 
@@ -163,8 +162,13 @@ void append_element(ListNode list_node, ListNode * list_heap, int idx) {
         heap[node_idx] = heap[curr_idx];
         heap[curr_idx] = temp;
     }
+    if (nodes[heap[node_idx]].distance != nodes[heap[curr_idx]].distance) {
+        // pop element, then go through the process again?
+    }
+    else {
+        list_heap->idx = list_heap->idx + 1;
+    }
 
-    list_heap->idx = list_heap->idx + 1;
 }
 
 int get_min(ListNode list_node, ListNode * list_heap) {
@@ -176,7 +180,6 @@ int get_min(ListNode list_node, ListNode * list_heap) {
     heap[0]       = heap[size];
     list_heap->idx = size;
 
-    // still need to implement
     int temp;
     int left_dist, right_dist;
     int left_idx, right_idx, i = 0;
@@ -189,6 +192,8 @@ int get_min(ListNode list_node, ListNode * list_heap) {
               heap[i] = is_left ? heap[left_idx]: heap[right_idx];
               heap[is_left ? left_idx: right_idx] = temp;
           }
+
+    // still need to check if index are being repeated
 
     return min;
 }
