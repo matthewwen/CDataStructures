@@ -119,6 +119,7 @@ void dijkstra(int node1, int node2, ListNode list_node, ListNode list_edge) {
     /* TODO
     - Check to see if index is repeated
     - Check smaller than or greater than values
+    - Store previous location
     - Done
     */
 
