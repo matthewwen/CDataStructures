@@ -6,6 +6,7 @@
 #include "header.h"
 
 int get_distance(Node_t * nodes, int idx1, int idx2);
+int get_min(ListNode list_node, ListNode * list_heap);
 void update_distance(Node_t * nodes, Edge_t * edges, int idx, int diff);
 void append_element(ListNode list_node, ListNode * list_heap, int idx);
 
@@ -92,47 +93,48 @@ bool read_cord(char * file_name, ListNode * a_node, ListNode * a_edge) {
     return isvalid;
 }
 
+
+// ------------------ FOR DEBUGGING ------------------------
+void print_heap(char * label, ListNode list_node, ListNode list_heap) {
+    int i;
+    Node_t * nodes = list_node.heap;
+    int * heap = list_heap.heap;
+    printf("--%s--\n", label);
+    for (i = 0; i < list_heap.idx; i++) {
+        printf("%d ", nodes[heap[i]].distance);
+    }
+    printf("\n---\n");
+}
+// ------------------ FOR DEBUGGING ------------------------
+
 void dijkstra(int node1, int node2, ListNode list_node, ListNode list_edge) {
     size_t alloc_size;
     int * heap = malloc(alloc_size = list_node.size * sizeof(*heap));
     memset(heap, 0, alloc_size);
     ListNode list_heap = {.heap = heap, .size = list_node.size, .idx = 0};
-    // this is for gdb
-    int i;
     Node_t * nodes = list_node.heap;
 
     nodes[0].distance = 100;
     append_element(list_node, &list_heap, 0);
-    printf("-----\n");
-    for (i = 0; i < list_heap.idx; i++) {
-        printf("%d ", nodes[heap[i]].distance);
-    }
-    printf("\n");
+    print_heap("add 100", list_node, list_heap);
 
     nodes[1].distance = 50;
     append_element(list_node, &list_heap, 1);
-    printf("-----\n");
-    for (i = 0; i < list_heap.idx; i++) {
-        printf("%d ", nodes[heap[i]].distance);
-    }
-    printf("\n");
+    print_heap("add 50", list_node, list_heap);
 
     nodes[2].distance = 30;
     append_element(list_node, &list_heap, 2);
-    printf("-----\n");
-    for (i = 0; i < list_heap.idx; i++) {
-        printf("%d ", nodes[heap[i]].distance);
-    }
-    printf("\n");
+    print_heap("add 30", list_node, list_heap);
 
     nodes[3].distance = 150;
-    printf("-----\n");
     append_element(list_node, &list_heap, 3);
-    for (i = 0; i < list_heap.idx; i++) {
-        printf("%d ", nodes[heap[i]].distance);
-    }
-    printf("\n");
+    print_heap("add 150", list_node, list_heap);
 
+    int min;
+    min = get_min(list_node, &list_heap);
+    print_heap("removed min", list_node, list_heap);
+    printf("min: %d\n", min);
+    
     // Node_t * nodes = list_node.heap;
     // Edge_t * edge  = list_node.heap;
 
@@ -157,22 +159,22 @@ void append_element(ListNode list_node, ListNode * list_heap, int idx) {
     list_heap->idx = list_heap->idx + 1;
 }
 
-int get_min(ListNode list_node, ListNode list_heap) {
+int get_min(ListNode list_node, ListNode * list_heap) {
     Node_t * nodes = list_node.heap;
-    int * heap     = list_heap.heap;
-    int size       = list_heap.idx - 1;
+    int * heap     = list_heap->heap;
+    int size       = list_heap->idx - 1;
 
     int min       = heap[0];
-    heap[0]       = heap[list_heap.idx - 1];
-    list_heap.idx = size;
+    heap[0]       = heap[size];
+    list_heap->idx = size;
 
     // still need to implement
     int temp;
     int left_dist, right_dist;
     int left_idx, right_idx, i = 0;
     bool is_left;
-    for (;(nodes[heap[i]].distance < (left_dist  = nodes[heap[left_idx  = (2 * i) + 1]].distance) || 
-           nodes[heap[i]].distance < (right_dist = nodes[heap[right_idx = (2 * i) + 2]].distance)) && 
+    for (;(nodes[heap[i]].distance > (left_dist  = nodes[heap[left_idx  = (2 * i) + 1]].distance) || 
+           nodes[heap[i]].distance > (right_dist = nodes[heap[right_idx = (2 * i) + 2]].distance)) && 
            left_idx < size; i = is_left ? left_idx: right_idx) {
               is_left = (left_dist > right_dist) || (right_idx > size);
               temp    = heap[i];
