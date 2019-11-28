@@ -37,10 +37,13 @@ $(M2):
 	$(CC) $(A_SRC) $(CFLAG) -o $(M2)
 
 atest:
-	./$(M2) $(MAP)
+	./$(M2) $(DIR)/$(MAP)
 
 test:
 	./$(NAME) $(DIR)/$(MAP)
+
+mtest:
+	valgrind ./$(NAME) $(DIR)/$(MAP)
 
 $(NAME):
 	$(CC) $(CFLAG) $(SRC) -o $(NAME) -I mycode -lm

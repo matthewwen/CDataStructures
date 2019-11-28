@@ -28,7 +28,7 @@ bool read_cord(char * file_name, ListNode * a_node, ListNode * a_edge) {
             for(i = 0; i < num_node && isvalid; i++) {
                 long x, y, idx;
                 isvalid = fscanf(fp, "%ld %ld %ld", &idx, &x, &y) == 3;
-                nodes[idx] = (Node_t) {.coord = {.x = x, .y = y}, .idx = -1, .adj_head = NULL, .adj_tail = NULL};
+                nodes[idx] = (Node_t) {.coord = {.x = x, .y = y}, .idx = -1, .minidx = -1, .adj_head = NULL, .adj_tail = NULL};
             }
             if (!isvalid) {
                 free(nodes);
@@ -127,20 +127,46 @@ void dijkstra(int node1, int node2, ListNode list_node, ListNode list_edge) {
     nodes[node1].distance = 0;
     append_element(list_node, &list_heap, node1);
     print_heap("add element", list_node, list_heap);
-    int i;
+    int i, new_distance;
     llong_t * curr;
     while (not_found) {
         int curr_idx = get_min(list_node, &list_heap);
         print_heap("remove element", list_node, list_heap);
         if ((not_found = (curr_idx != node2))) {
             for (i = nodes[curr_idx].idx; edges[i].node_idx == curr_idx; i++) {
-                nodes[edges[i].leaf].distance = get_distance(nodes, curr_idx, edges[i].leaf) + nodes[curr_idx].distance;
-                append_element(list_node, &list_heap, edges[i].leaf);
+                new_distance = get_distance(nodes, curr_idx, edges[i].leaf) + nodes[curr_idx].distance;
+                if (nodes[edges[i].leaf].distance == 0 && edges[i].leaf != node1) {
+                    nodes[edges[i].leaf].distance = new_distance;
+                    printf("this is good\n");
+                    append_element(list_node, &list_heap, edges[i].leaf);
+                }
+                else {
+                    if (new_distance < nodes[curr_idx].distance) {
+                        printf("DO update: %ld, %d\n", edges[i].leaf, nodes[edges[i].leaf].distance);
+                    }
+                    else {
+                        printf("DO NOT update: %ld, %d\n", edges[i].leaf, nodes[edges[i].leaf].distance);
+                    }
+                }
+                printf("size: %ld\n", list_heap.idx);
                 print_heap("add element", list_node, list_heap);
             }
             for (curr = nodes[curr_idx].adj_head; curr != NULL; curr = curr->next) {
-                nodes[curr->idx].distance = get_distance(nodes, curr_idx, curr->idx) + nodes[curr_idx].distance;
-                append_element(list_node, &list_heap, curr->idx);
+                new_distance = get_distance(nodes, curr_idx, curr->idx) + nodes[curr_idx].distance;
+                if (nodes[curr->idx].distance == 0 && curr->idx != node1) {
+                    printf("this is good\n");
+                    nodes[curr->idx].distance = new_distance;
+                    append_element(list_node, &list_heap, curr->idx);
+                }
+                else {
+                    if (new_distance < nodes[curr_idx].distance) {
+                        printf("DO update: %ld, %d\n", curr->idx, nodes[curr->idx].distance);
+                    }
+                    else {
+                        printf("DO NOT update: %ld, %d\n", curr->idx, nodes[curr->idx].distance);
+                    }
+                }
+                printf("size: %ld\n", list_heap.idx);
                 print_heap("add element", list_node, list_heap);
             }
         }
@@ -159,17 +185,16 @@ void append_element(ListNode list_node, ListNode * list_heap, int idx) {
     int temp, node_idx = -1;
     for (;curr_idx >= 0 && 
           nodes[heap[(node_idx = ((curr_idx - 1) / 2))]].distance > nodes[heap[curr_idx]].distance; curr_idx = node_idx) {
+        // swap
         temp           = heap[node_idx];
         heap[node_idx] = heap[curr_idx];
         heap[curr_idx] = temp;
-    }
-    if (nodes[heap[node_idx]].distance != nodes[heap[curr_idx]].distance) {
-        // pop element, then go through the process again?
-    }
-    else {
-        list_heap->idx = list_heap->idx + 1;
-    }
 
+        // set
+        nodes[heap[node_idx]].minidx = node_idx;
+        nodes[heap[curr_idx]].minidx = curr_idx;
+    }
+    list_heap->idx = list_heap->idx + 1;
 }
 
 int get_min(ListNode list_node, ListNode * list_heap) {
@@ -184,17 +209,35 @@ int get_min(ListNode list_node, ListNode * list_heap) {
     int temp;
     int left_dist, right_dist;
     int left_idx, right_idx, i = 0;
-    bool is_left;
-    for (;(nodes[heap[i]].distance > (left_dist  = nodes[heap[left_idx  = (2 * i) + 1]].distance) || 
-           nodes[heap[i]].distance > (right_dist = nodes[heap[right_idx = (2 * i) + 2]].distance)) && 
-           left_idx < size; i = is_left ? left_idx: right_idx) {
-              is_left = (left_dist > right_dist) || (right_idx > size);
-              temp    = heap[i];
-              heap[i] = is_left ? heap[left_idx]: heap[right_idx];
-              heap[is_left ? left_idx: right_idx] = temp;
-          }
+    int idx;
+    bool is_left = true;
+    bool not_finished = true;
+    for (;not_finished; i = is_left ? left_idx: right_idx) {
+        // check values
+        left_idx  = (2 * i) + 1;
+        right_idx = left_idx + 1;
+        if (left_idx < list_heap->size) {
+            if (right_idx > list_heap->size) {
+                right_idx = left_idx;
+            }
 
-    // still need to check if index are being repeated
+            left_dist  = nodes[heap[left_idx]].distance;
+            right_dist = nodes[heap[right_idx]].distance;
+
+            if ((not_finished = ((nodes[heap[i]].distance > left_dist || nodes[heap[i]].distance > right_dist) && left_idx < size))) {
+                // swap
+                is_left = (left_dist >= right_dist);
+                temp    = heap[i];
+                heap[i] = is_left ? heap[left_idx]: heap[right_idx];
+                heap[(idx = (is_left ? left_idx: right_idx))] = temp;
+                
+                // set
+                nodes[heap[i]].minidx   = i;
+                nodes[heap[idx]].minidx = idx;
+            }
+        }
+
+    }
 
     return min;
 }

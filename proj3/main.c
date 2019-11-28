@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
         // Edge_t * edges = list_edge.heap;
         printf("Done Creating Nodes\n");
 
-        dijkstra(0, 1, list_node, list_edge);
+        dijkstra(0, 24, list_node, list_edge);
 
         // free method
         free_nodes(list_node.heap, list_node.size);
