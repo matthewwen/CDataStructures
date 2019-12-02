@@ -107,30 +107,22 @@ void print_heap(char * label, ListNode list_node, ListNode list_heap) {
     printf("\n---\n");
 }
 // ------------------ FOR DEBUGGING ------------------------
-
-// void function(int idx, int new_distance, Node_t * nodes, Edge_t * edges, ListNode * heap) {
-//         if (nodes[idx].distance == 0) { // not correct with the edges[idx] != idx
-//             nodes[idx].distance = new_distance;
-//             append_element(nodes, heap, idx);
-//         }
-//         else {
-//         //     if (new_distance < nodes[curr_idx].distance) { // this part is still wrong
-//         //         printf("DO update: %ld, %d\n", edges[i].leaf, nodes[edges[i].leaf].distance);
-//         //     }
-//         //     else {
-//         //         printf("DO NOT update: %ld, %d\n", edges[i].leaf, nodes[edges[i].leaf].distance);
-//         //     }
-//         }
-// }
-
 void function(dijkstra_t dijkstra, int adj_idx) {
     int new_distance = get_distance(dijkstra.nodes, dijkstra.curr_idx, adj_idx) + dijkstra.nodes[dijkstra.curr_idx].distance;
     if (adj_idx != dijkstra.curr_pidx) {
-        if (dijkstra.nodes[adj_idx].distance == 0) {
+        if (dijkstra.prev[adj_idx] == -1) {
             dijkstra.nodes[adj_idx].distance = new_distance;
             append_element(dijkstra.nodes, dijkstra.heap, adj_idx);
+            dijkstra.prev[adj_idx] = dijkstra.curr_idx;
         }
-        dijkstra.prev[adj_idx] = dijkstra.curr_idx;
+        else {
+            if (dijkstra.nodes[adj_idx].distance > new_distance) {
+                printf("update distance, change previous, add to heap\n");
+            }
+            else {
+                printf("Do not do anything\n");
+            }
+        }
     }
     
 }
@@ -152,13 +144,6 @@ void dijkstra(int node1, int node2, ListNode list_node, ListNode list_edge) {
     Node_t * nodes = list_node.heap;
     Edge_t * edges = list_edge.heap;
 
-    /* TODO
-    - Check to see if index is repeated
-    - Check smaller than or greater than values
-    - Store previous location
-    - Done
-    */
-
     bool not_found = true;
     nodes[node1].distance = 0;
     append_element(nodes, &list_heap, node1);
@@ -176,7 +161,14 @@ void dijkstra(int node1, int node2, ListNode list_node, ListNode list_edge) {
             }
         }
         not_found = list_heap.idx != 0 && not_found;
-        print_heap("at end", list_node, list_heap);
+        // print_heap("at end", list_node, list_heap);
+    }
+
+    if (list_heap.idx != 0) {
+        printf("Found a path\n");
+    }
+    else {
+        printf("Cannot find a path\n");
     }
 
     free(prev);

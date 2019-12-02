@@ -11,8 +11,13 @@ int main(int argc, char* argv[]) {
         // print out results
         // Edge_t * edges = list_edge.heap;
         printf("Done Creating Nodes\n");
-
-        dijkstra(0, 24, list_node, list_edge);
+        int i, j;
+        for (i = 0; i < 24; i++) {
+            for (j = 0; j < 24; j++) {
+                printf("i: %d, j: %d -> ", i, j);
+                dijkstra(i, j, list_node, list_edge);
+            }
+        }
 
         // free method
         free_nodes(list_node.heap, list_node.size);
