@@ -117,10 +117,8 @@ void function(dijkstra_t dijkstra, int adj_idx) {
         }
         else {
             if (dijkstra.nodes[adj_idx].distance > new_distance) {
-                printf("update distance, change previous, add to heap\n");
-                assert(false);
-            }
-            else {
+                dijkstra.nodes[adj_idx].distance = new_distance;
+                append_element(dijkstra.nodes, dijkstra.heap, adj_idx);
             }
         }
     }
@@ -210,7 +208,6 @@ void append_element(Node_t * nodes, ListNode * list_heap, int idx) {
         }
         assert(is_found);
         assert(idx == heap[curr_idx]);
-        assert(false);
     }
 
     int temp, node_idx = -1;
