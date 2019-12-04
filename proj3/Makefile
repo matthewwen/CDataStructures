@@ -1,8 +1,7 @@
 NAME=proj3
 M2=adjacent
 
-CFLAG= -Wall -std=c99 -std=gnu99 -g
-#-O3 -Werror
+CFLAG= -Wall -std=c99 -std=gnu99 -g -O3 -Werror
 
 MAIN=mycode
 HEADER=mycode
@@ -39,8 +38,17 @@ $(M2):
 atest:
 	./$(M2) $(DIR)/$(MAP) 
 
-test:
-	./$(NAME) $(DIR)/$(USA) $(DIR)/$(USA1)
+test1:
+	./$(NAME) $(DIR)/$(USA) $(DIR)/$(USA1) > test1.txt
+	diff actual1.txt test1.txt
+
+test2:
+	./$(NAME) $(DIR)/$(USA) $(DIR)/$(USA10) > test2.txt
+	diff actual2.txt test2.txt
+
+test3:
+	./$(NAME) $(DIR)/$(USA) $(DIR)/$(USA100)
+	diff actual3.txt test3.txt
 
 mtest:
 	valgrind ./$(NAME) $(DIR)/$(MAP) $(DIR)/$(QUERY)

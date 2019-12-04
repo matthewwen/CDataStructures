@@ -17,8 +17,8 @@ void print_list(int * prev, int i, int j) {
 int main(int argc, char* argv[]) {
     bool is_valid = false;
     if ((is_valid = (argc > 2))) {
-        ListNode list_node; ListNode list_edge;
-        is_valid = read_cord(argv[1], &list_node, &list_edge);
+        ListNode list_node;
+        is_valid = read_cord(argv[1], &list_node);
 
         FILE * fp = fopen(argv[2], "r");
         long num_query = 0;
@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
         for (i = 0; i < num_query; i++) {
             long start = 0; long end = 0;
             is_valid = fscanf(fp, "%ld %ld", &start, &end);
-            if (dijkstra(start, end, list_node, list_edge, &list_heap, &prev)){
+            if (dijkstra(start, end, list_node, &list_heap, &prev)){
                 long distance = nodes[end].distance;
                 printf("%ld\n", distance);
                 print_list(prev, start, end);
@@ -53,7 +53,6 @@ int main(int argc, char* argv[]) {
 
         // free method
         free_nodes(list_node.heap, list_node.size);
-        free(list_edge.heap);
     }
 	
 	return is_valid ? EXIT_SUCCESS: EXIT_FAILURE;
