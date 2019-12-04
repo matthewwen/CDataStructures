@@ -5,6 +5,8 @@
 
 // you could just go the other way right?
 void print_list(int * prev, int i, int j) {
+    assert(j >= 0);
+    assert(i >= 0);
     if (i == j) {
         printf("%d ", i);
     }

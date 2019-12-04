@@ -6,21 +6,10 @@
 #include "header.h"
 
 int  get_distance(Node_t * nodes, int idx1, int idx2);
-int get_min(Node_t * nodes, ListNode * list_heap);
+int  get_min(Node_t * nodes, ListNode * list_heap);
 void update_distance(Node_t * nodes, Edge_t * edges, int idx, int diff);
 void append_element(Node_t *, ListNode * list_heap, int idx);
-// ------------------ FOR DEBUGGING ------------------------
-void print_heap(char * label, Node_t * nodes, ListNode list_heap) {
-    int i;
-    int * heap = list_heap.heap;
-    printf("--%s--\n", label);
-    printf("curr idx: %ld -> ", list_heap.idx);
-    for (i = 0; i < list_heap.idx; i++) {
-        printf("%f ", nodes[heap[i]].distance);
-    }
-    printf("\n---\n");
-}
-// ------------------ FOR DEBUGGING ------------------------
+
 bool read_cord(char * file_name, ListNode * a_node) {
     long num_node = 0, num_edge = 0, i, j;
     Node_t * nodes = NULL;
@@ -39,7 +28,7 @@ bool read_cord(char * file_name, ListNode * a_node) {
             for(i = 0; i < num_node && isvalid; i++) {
                 long x, y, idx;
                 isvalid = fscanf(fp, "%ld %ld %ld", &idx, &x, &y) == 3;
-                nodes[idx] = (Node_t) {.coord = {.x = x, .y = y}, .idx = -1, .minidx = -1, .adj_head = NULL};
+                nodes[idx] = (Node_t) {.coord = {.x = x, .y = y}, .minidx = -1, .adj_head = NULL};
             }
             if (!isvalid) {
                 free(nodes);
@@ -67,10 +56,9 @@ bool read_cord(char * file_name, ListNode * a_node) {
 
                         if (add_idx) {
                             llong_t * temp = malloc(sizeof(*temp));
-                            *temp = (llong_t) {.idx = tempidx, .next = NULL};
-                            *curr = temp;
+                            *temp = (llong_t) {.idx = tempidx, .next = nodes[idx].adj_head};
+                            nodes[idx].adj_head = temp;
                         }
-
                     }
                 }
             }
@@ -91,7 +79,6 @@ void function(dijkstra_t dijkstra, int adj_idx) {
             dijkstra.prev[adj_idx] = dijkstra.curr_idx;
         }
     }
-    
 }
 
 bool dijkstra(int node1, int node2, ListNode list_node, ListNode * list_heap, int ** a_prev) {
@@ -153,15 +140,6 @@ void append_element(Node_t * nodes, ListNode * list_heap, int idx) {
         heap[curr_idx] = idx;
         list_heap->idx = list_heap->idx + 1;
         nodes[idx].minidx = curr_idx;
-    }
-    else {
-        // int i;
-        // int * heap = list_heap->heap;
-        // bool is_found = false;
-        // for (i = 0; i < list_heap->size; i++) {
-        //     is_found = heap[i] == idx || is_found;
-        // }
-        // assert(is_found);
     }
 
     int temp, node_idx = -1;
