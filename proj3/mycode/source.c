@@ -9,7 +9,18 @@ double  get_distance(Node_t * nodes, int idx1, int idx2);
 int get_min(Node_t * nodes, ListNode * list_heap);
 void update_distance(Node_t * nodes, Edge_t * edges, int idx, int diff);
 void append_element(Node_t *, ListNode * list_heap, int idx);
-
+// ------------------ FOR DEBUGGING ------------------------
+void print_heap(char * label, Node_t * nodes, ListNode list_heap) {
+    int i;
+    int * heap = list_heap.heap;
+    printf("--%s--\n", label);
+    printf("curr idx: %ld -> ", list_heap.idx);
+    for (i = 0; i < list_heap.idx; i++) {
+        printf("%f ", nodes[heap[i]].distance);
+    }
+    printf("\n---\n");
+}
+// ------------------ FOR DEBUGGING ------------------------
 bool read_cord(char * file_name, ListNode * a_node, ListNode * a_edge) {
     bool isvalid;
     FILE * fp;
@@ -93,34 +104,34 @@ bool read_cord(char * file_name, ListNode * a_node, ListNode * a_edge) {
     return isvalid;
 }
 
-// ------------------ FOR DEBUGGING ------------------------
-void print_heap(char * label, ListNode list_node, ListNode list_heap) {
-    int i;
-    Node_t * nodes = list_node.heap;
-    int * heap = list_heap.heap;
-    printf("--%s--\n", label);
-    printf("curr idx: %ld -> ", list_heap.idx);
-    for (i = 0; i < list_heap.idx; i++) {
-        printf("%f ", nodes[heap[i]].distance);
-    }
-    printf("\n---\n");
-}
-// ------------------ FOR DEBUGGING ------------------------
-
 void function(dijkstra_t dijkstra, int adj_idx) {
-    int new_distance = get_distance(dijkstra.nodes, dijkstra.curr_idx, adj_idx) + dijkstra.nodes[dijkstra.curr_idx].distance;
+    double new_distance = get_distance(dijkstra.nodes, dijkstra.curr_idx, adj_idx) + dijkstra.nodes[dijkstra.curr_idx].distance;
     if (adj_idx != dijkstra.curr_pidx) {
-        if (dijkstra.prev[adj_idx] == -1) {
+        if ((dijkstra.prev[adj_idx] == -1) ||
+            (dijkstra.nodes[adj_idx].distance > new_distance)) {
+            // assert(dijkstra.curr_idx == 70);
+            // assert(dijkstra.curr_idx != 70 && adj_idx != 67);
+            if (dijkstra.curr_idx == 70 && adj_idx == 67)
+                printf("hi\n");
+
+            if (dijkstra.nodes[adj_idx].distance > new_distance) {
+                printf("hello there");
+                if (dijkstra.curr_idx == 70 && adj_idx == 67) 
+                    printf("Hello");
+                    // printf("entered %f, %f\n", dijkstra.nodes[adj_idx].distance, new_distance);
+                assert(dijkstra.curr_idx != 70 && adj_idx != 67);
+                // assert(dijkstra.curr_idx == 70 && adj_idx == 67);
+            }
             dijkstra.nodes[adj_idx].distance = new_distance;
             append_element(dijkstra.nodes, dijkstra.heap, adj_idx);
             dijkstra.prev[adj_idx] = dijkstra.curr_idx;
         }
-        else {
-            if (dijkstra.nodes[adj_idx].distance > new_distance) {
-                dijkstra.nodes[adj_idx].distance = new_distance;
-                append_element(dijkstra.nodes, dijkstra.heap, adj_idx);
-            }
-        }
+        // if (dijkstra.prev[adj_idx] == -1) {
+        //     printf("entered %f, %f\n", dijkstra.nodes[adj_idx].distance, new_distance);
+        //     dijkstra.nodes[adj_idx].distance = new_distance;
+        //     append_element(dijkstra.nodes, dijkstra.heap, adj_idx);
+        //     dijkstra.prev[adj_idx] = dijkstra.curr_idx;
+        // }
     }
     
 }
@@ -148,38 +159,39 @@ bool dijkstra(int node1, int node2, ListNode list_node, ListNode list_edge, List
     for (i = 0; i < list_node.size; i++) {
         prev[i] = -1;
     }
+    // debug
+    int count = 0;
+    // debug
 
     bool not_found        = true;
     nodes[node1].distance = 0;
     dijkstra_t dijkstra   = {.nodes = nodes, .edges = edges, .heap = list_heap, .prev = prev};
     append_element(nodes, list_heap, node1);
-    // debug
-    int count = 0;
-    // debug
     while (not_found) {
         dijkstra.curr_idx  = get_min(nodes, list_heap);
         dijkstra.curr_pidx = prev[dijkstra.curr_idx];
 
         if ((not_found = (dijkstra.curr_idx != node2))) {
-            for (i = nodes[dijkstra.curr_idx].idx; i < list_node.size && edges[i].node_idx == dijkstra.curr_idx; i++) {
+            for (i = nodes[dijkstra.curr_idx].idx; i < list_edge.size && edges[i].node_idx == dijkstra.curr_idx; i++) {
                 function(dijkstra, edges[i].leaf);
-                if (count == 1)
-                    printf("%ld\n", edges[i].leaf);
             }
             llong_t * curr;
             for (curr = nodes[dijkstra.curr_idx].adj_head; curr != NULL; curr = curr->next) {
                 function(dijkstra, curr->idx);
-                if (count == 1)
-                    printf("%ld\n", curr->idx);
             }
         }
+
+        // debug
+        // if (nodes[node2].distance > 230) {
+        //     printf("conflix: %d\n");
+        //     count++;
+        //     not_found = true;
+        // }
+        // debug
+        
         not_found = list_heap->idx != 0 && not_found;
     }
     
-    if (list_heap->idx == 0) {
-        // assert(dijkstra.curr_idx != node2);
-    }
-
     // clear min idx
     int * heap = list_heap->heap;
     for (i = 0; i < list_heap->idx; i++) {
@@ -212,7 +224,7 @@ void append_element(Node_t * nodes, ListNode * list_heap, int idx) {
 
     int temp, node_idx = -1;
     for (;curr_idx > 0 && 
-          nodes[heap[(node_idx = ((curr_idx - 1) / 2))]].distance > nodes[heap[curr_idx]].distance; curr_idx = node_idx) {
+          nodes[heap[(node_idx = ((curr_idx - 1) / 2))]].distance >= nodes[heap[curr_idx]].distance; curr_idx = node_idx) {
 
         int swap_idx = curr_idx;
         // swap
@@ -266,6 +278,16 @@ int get_min(Node_t * nodes, ListNode * list_heap) {
         }
     }
 
+    // check heap
+    do {
+       int min_dist = nodes[min].distance;
+       int i;
+       for (i = 0; i < list_heap->idx; i++) {
+        //    if (min_dist < nodes[heap[i]].distance)
+           assert(min_dist <= nodes[heap[i]].distance);
+       }
+    }while(false);
+
     return min;
 }
 
@@ -285,8 +307,8 @@ void free_nodes(Node_t * nodes, int size) {
 }
 
 double get_distance(Node_t * nodes, int idx1, int idx2) {
-    int x_diff = nodes[idx1].coord.x - nodes[idx2].coord.x;
-    int y_diff = nodes[idx1].coord.y - nodes[idx2].coord.y;
+    long x_diff = nodes[idx1].coord.x - nodes[idx2].coord.x;
+    long y_diff = nodes[idx1].coord.y - nodes[idx2].coord.y;
 
     double dist_square = (x_diff * x_diff) + (y_diff * y_diff);
     return sqrt(dist_square);
