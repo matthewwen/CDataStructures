@@ -40,7 +40,7 @@ atest:
 	./$(M2) $(DIR)/$(MAP)
 
 test:
-	./$(NAME) $(DIR)/$(MAP)
+	./$(NAME) $(DIR)/$(ROADCA) #$(MAP)
 
 mtest:
 	valgrind ./$(NAME) $(DIR)/$(MAP)
