@@ -5,13 +5,15 @@
 #include <math.h>
 #include "header.h"
 
-int  get_distance(Node_t * nodes, int idx1, int idx2);
-int  get_min(Node_t * nodes, ListNode * list_heap);
-void update_distance(Node_t * nodes, Edge_t * edges, int idx, int diff);
-void append_element(Node_t *, ListNode * list_heap, int idx);
+double get_distance(Node_t * nodes, int idx1, int idx2);
+int    get_min(Node_t * nodes, ListNode * list_heap);
+void   update_distance(Node_t * nodes, Edge_t * edges, int idx, int diff);
+void   append_element(Node_t *, ListNode * list_heap, int idx);
+
+#define ORDER <
 
 bool read_cord(char * file_name, ListNode * a_node) {
-    long num_node = 0, num_edge = 0, i, j;
+    long num_node = 0, num_edge = 0, i;
     Node_t * nodes = NULL;
 
     bool isvalid;
@@ -39,26 +41,38 @@ bool read_cord(char * file_name, ListNode * a_node) {
         // store the edge as linked list
         if (isvalid) {
             for (i = 0; i < num_edge; i++) {
-                long idx_array[2];
-                isvalid = (fscanf(fp, "%ld %ld", &(idx_array[0]), &(idx_array[1])) == 2);
+                long idx, tempidx;
+                isvalid = (fscanf(fp, "%ld %ld", &idx, &tempidx) == 2);
                 if (!isvalid) {
                     free(nodes);
                 }
                 else {
-                    for (j = 0; j < 2; j++) {
-                        int idx     = idx_array[j];
-                        int tempidx = idx_array[(j + 1) % 2];
-                        llong_t ** curr;
-                        bool add_idx = true;
-                        for (curr = &(nodes[idx].adj_head); 
-                            ((*curr) != NULL) && (add_idx = ((*curr)->idx != tempidx)); 
-                            curr = &(*curr)->next) {}
+                    llong_t * temp = malloc(sizeof(*temp));
+                    llong_t ** curr;
+                    for (curr = &(nodes[idx].adj_head); 
+                        (*curr) != NULL && ((*curr)->idx ORDER tempidx) ; 
+                        curr = &((*curr)->next)) {}
 
-                        if (add_idx) {
-                            llong_t * temp = malloc(sizeof(*temp));
-                            *temp = (llong_t) {.idx = tempidx, .next = nodes[idx].adj_head};
-                            nodes[idx].adj_head = temp;
-                        }
+                    *temp = (llong_t) {.idx = tempidx, .next = *curr};
+                    *curr = temp; 
+                }
+            }
+        }
+
+        // check non adjacent
+        if (isvalid) {
+            for (i = 0; i < num_node; i++) {
+                llong_t * curr0; 
+                for (curr0 = nodes[i].adj_head; curr0 != NULL; curr0 = curr0->next){
+                    llong_t ** a_curr;
+                    for (a_curr = &nodes[curr0->idx].adj_head; 
+                        ((*a_curr) != NULL) && ((*a_curr)->idx ORDER i); 
+                        a_curr = &((*a_curr)->next)) {}
+                        
+                    if ((*a_curr) == NULL || (*a_curr)->idx != i) {
+                        llong_t * temp = malloc(sizeof(*temp));
+                        *temp = (llong_t) {.idx = i, .next = (*a_curr)};
+                        *a_curr = temp;
                     }
                 }
             }
@@ -118,7 +132,6 @@ bool dijkstra(int node1, int node2, ListNode list_node, ListNode * list_heap, in
                 function(dijkstra, curr->idx);
             }
         }
-        
         not_found = list_heap->idx != 0 && not_found;
     }
     
@@ -145,16 +158,14 @@ void append_element(Node_t * nodes, ListNode * list_heap, int idx) {
     int temp, node_idx = -1;
     for (;curr_idx > 0 && 
           nodes[heap[(node_idx = ((curr_idx - 1) / 2))]].distance > nodes[heap[curr_idx]].distance; curr_idx = node_idx) {
-
-        int swap_idx = curr_idx;
         // swap
         temp           = heap[node_idx];
-        heap[node_idx] = heap[swap_idx];
-        heap[swap_idx] = temp;
+        heap[node_idx] = heap[curr_idx];
+        heap[curr_idx] = temp;
 
         // set
         nodes[heap[node_idx]].minidx = node_idx;
-        nodes[heap[swap_idx]].minidx = swap_idx;
+        nodes[heap[curr_idx]].minidx = curr_idx;
     }
 }
 
@@ -216,7 +227,7 @@ void free_nodes(Node_t * nodes, int size) {
     free(nodes);
 }
 
-int get_distance(Node_t * nodes, int idx1, int idx2) {
+double get_distance(Node_t * nodes, int idx1, int idx2) {
     long x_diff = nodes[idx1].coord.x - nodes[idx2].coord.x;
     long y_diff = nodes[idx1].coord.y - nodes[idx2].coord.y;
 
