@@ -1,12 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <assert.h>
 #include "header.h"
 
-// you could just go the other way right?
 void print_list(int * prev, int i, int j) {
-    assert(j >= 0);
-    assert(i >= 0);
     if (i == j) {
         printf("%d ", i);
     }
@@ -21,16 +17,6 @@ int main(int argc, char* argv[]) {
     if ((is_valid = (argc > 2))) {
         ListNode list_node;
         is_valid = read_cord(argv[1], &list_node);
-        // Node_t * nodes = list_node.heap;
-        // int i;
-        // for (i = 0; i < list_node.size; i++) {
-        //     llong_t * curr = nodes[i].adj_head;
-        //     printf("%d: ", i);
-        //     for (;curr != NULL; curr = curr->next) {
-        //         printf("%ld ", curr->idx);
-        //     }
-        //     printf("\n");
-        // }
         FILE * fp = fopen(argv[2], "r");
         long num_query = 0;
         is_valid = fscanf(fp, "%ld", &num_query);

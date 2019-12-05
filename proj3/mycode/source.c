@@ -1,25 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include <math.h>
 #include "header.h"
 
 double get_distance(Node_t * nodes, int idx1, int idx2);
 int    get_min(Node_t * nodes, ListNode * list_heap);
-void   update_distance(Node_t * nodes, Edge_t * edges, int idx, int diff);
 void   append_element(Node_t *, ListNode * list_heap, int idx);
 
 #define ORDER <
 
 bool read_cord(char * file_name, ListNode * a_node) {
-    long num_node = 0, num_edge = 0, i;
+    int num_node = 0, num_edge = 0, i;
     Node_t * nodes = NULL;
 
     bool isvalid;
     FILE * fp;
     if ((isvalid = ((fp = fopen(file_name, "r")) != NULL))) {
-        isvalid = fscanf(fp, "%ld %ld", &num_node, &num_edge) == 2;
+        isvalid = fscanf(fp, "%d %d", &num_node, &num_edge) == 2;
 
         // store nodes in an array
         size_t alloc_size = 0;
@@ -28,8 +26,8 @@ bool read_cord(char * file_name, ListNode * a_node) {
                        != NULL)) {
             memset(nodes, 0, alloc_size);
             for(i = 0; i < num_node && isvalid; i++) {
-                long x, y, idx;
-                isvalid = fscanf(fp, "%ld %ld %ld", &idx, &x, &y) == 3;
+                int x, y, idx;
+                isvalid = fscanf(fp, "%d %d %d", &idx, &x, &y) == 3;
                 nodes[idx] = (Node_t) {.coord = {.x = x, .y = y}, .minidx = -1, .adj_head = NULL};
             }
             if (!isvalid) {
@@ -41,8 +39,8 @@ bool read_cord(char * file_name, ListNode * a_node) {
         // store the edge as linked list
         if (isvalid) {
             for (i = 0; i < num_edge; i++) {
-                long idx, tempidx;
-                isvalid = (fscanf(fp, "%ld %ld", &idx, &tempidx) == 2);
+                int idx, tempidx;
+                isvalid = (fscanf(fp, "%d %d", &idx, &tempidx) == 2);
                 if (!isvalid) {
                     free(nodes);
                 }
@@ -146,6 +144,7 @@ bool dijkstra(int node1, int node2, ListNode list_node, ListNode * list_heap, in
 
 void append_element(Node_t * nodes, ListNode * list_heap, int idx) {
     int * heap     = list_heap->heap;
+    // list_heap->heap = realloc(heap, sizeof(*heap) * list_heap->size);
 
     int curr_idx   = nodes[idx].minidx;
     if (curr_idx < 0) {
