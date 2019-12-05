@@ -1,14 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "header.h"
+#include <assert.h>
 
 void print_list(int * prev, int i, int j) {
-    if (i == j) {
-        printf("%d ", i);
+    int theprev;
+    int thenext = -1;
+    int temp;
+    for (theprev = j; theprev != i; theprev = temp) {
+        temp = prev[theprev];
+        prev[theprev] = thenext;
+        thenext = theprev;
     }
-    else if (i >= 0) {
-        print_list(prev, i, prev[j]);
-        printf("%d ", j);
+    prev[i] = thenext;
+
+    for (; i != -1; i = prev[i]) {
+        printf("%d ", i);
     }
 }
 
