@@ -69,3 +69,6 @@ ms1submit:
 
 ms2submit:
 	turnin -c ece368 -p proj3ms2 mycode/adjacent.c
+
+finalsubmit:
+	turnin -c ece368 -p proj3 main.c mycode/source.c mycode/header.c
