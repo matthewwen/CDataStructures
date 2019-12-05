@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <assert.h>
 #include "header.h"
 
 double get_distance(Node_t * nodes, int idx1, int idx2);
@@ -98,7 +99,7 @@ bool dijkstra(int node1, int node2, ListNode list_node, ListNode * list_heap, in
     Node_t * nodes = list_node.heap;
 
     if (list_heap->heap == NULL) {
-        *list_heap = (ListNode) {.heap = malloc((alloc_size = (list_node.size * sizeof(int)))), .size = list_node.size};
+        *list_heap = (ListNode) {.heap = malloc((alloc_size = (100 * sizeof(int)))), .size = 100};
         memset(list_heap->heap, 0, alloc_size);
     }
     list_heap->idx = 0;
@@ -144,14 +145,20 @@ bool dijkstra(int node1, int node2, ListNode list_node, ListNode * list_heap, in
 
 void append_element(Node_t * nodes, ListNode * list_heap, int idx) {
     int * heap     = list_heap->heap;
-    // list_heap->heap = realloc(heap, sizeof(*heap) * list_heap->size);
 
     int curr_idx   = nodes[idx].minidx;
     if (curr_idx < 0) {
+        // realloc memory
         curr_idx = list_heap->idx;
+        if ((curr_idx + 1) >= list_heap->size) {
+            list_heap->size = list_heap->size + 50;
+            heap = realloc(heap, sizeof(*heap) * list_heap->size);
+            list_heap->heap = heap;
+        }
         heap[curr_idx] = idx;
         list_heap->idx = list_heap->idx + 1;
         nodes[idx].minidx = curr_idx;
+
     }
 
     int temp, node_idx = -1;
