@@ -13,13 +13,10 @@ struct llong_t{
 typedef struct llong_t llong_t;
 
 typedef struct{
-    struct {
-        int x;
-        int y;
-    } coord;
+    int x;
+    int y;
     llong_t * adj_head; // Linked list
-    int minidx; // idx at the min heap
-    uint16_t distance; // dijkstra algorithm
+    int distance; // dijkstra algorithm
 }Node_t;
 
 typedef struct{
