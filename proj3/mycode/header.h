@@ -6,16 +6,22 @@
 #include <stdbool.h>
 #include <inttypes.h>
 
+// struct llong_t{
+//     int idx;
+//     struct llong_t * next;
+// };
+// typedef struct llong_t llong_t;
 struct llong_t{
-    int idx;
-    struct llong_t * next;
+    int * idx;
+    int i;
+    int size;
 };
 typedef struct llong_t llong_t;
 
 typedef struct{
     int x;
     int y;
-    llong_t * adj_head; // Linked list
+    llong_t adj_head; // Linked list
     int distance; // dijkstra algorithm
 }Node_t;
 

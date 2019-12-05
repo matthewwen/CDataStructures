@@ -29,7 +29,7 @@ bool read_cord(char * file_name, ListNode * a_node) {
             for(i = 0; i < num_node && isvalid; i++) {
                 int x, y, idx;
                 isvalid = fscanf(fp, "%d %d %d", &idx, &x, &y) == 3;
-                nodes[idx] = (Node_t) {.x = x, .y = y, .adj_head = NULL};
+                nodes[idx] = (Node_t) {.x = x, .y = y};
             }
             if (!isvalid) {
                 free(nodes);
@@ -46,32 +46,44 @@ bool read_cord(char * file_name, ListNode * a_node) {
                     free(nodes);
                 }
                 else {
-                    llong_t * temp = malloc(sizeof(*temp));
-                    llong_t ** curr;
-                    for (curr = &(nodes[idx].adj_head); 
-                        (*curr) != NULL && ((*curr)->idx ORDER tempidx) ; 
-                        curr = &((*curr)->next)) {}
-
-                    *temp = (llong_t) {.idx = tempidx, .next = *curr};
-                    *curr = temp; 
+                    llong_t temp = nodes[idx].adj_head;
+                    if (temp.idx == NULL) {
+                        temp = (llong_t) {.idx = malloc(10 * sizeof(int)), .size = 10, .i = 0};
+                    }
+                    else if ((temp.i + 1) >= temp.size) {
+                        temp.size = temp.size + 10;
+                        temp.idx  = realloc(temp.idx, temp.size);
+                    }
+                    temp.idx[temp.i] = tempidx;
+                    temp.i = temp.i + 1;
+                    nodes[idx].adj_head = temp;
                 }
             }
         }
 
         // check non adjacent
+        int j, k;
         if (isvalid) {
             for (i = 0; i < num_node; i++) {
-                llong_t * curr0; 
-                for (curr0 = nodes[i].adj_head; curr0 != NULL; curr0 = curr0->next){
-                    llong_t ** a_curr;
-                    for (a_curr = &nodes[curr0->idx].adj_head; 
-                        ((*a_curr) != NULL) && ((*a_curr)->idx ORDER i); 
-                        a_curr = &((*a_curr)->next)) {}
+                llong_t temp = nodes[i].adj_head;
+                for (j = 0; j < temp.i; j++){
+                    llong_t temptemp = nodes[temp.idx[j]].adj_head;
+                    bool not_found   = true;
+                    for (k = 0; 
+                         k < temptemp.i && (not_found = (temptemp.idx[k] != i)); 
+                         k++) {}
                         
-                    if ((*a_curr) == NULL || (*a_curr)->idx != i) {
-                        llong_t * temp = malloc(sizeof(*temp));
-                        *temp = (llong_t) {.idx = i, .next = (*a_curr)};
-                        *a_curr = temp;
+                    if (not_found) {
+                        if (temptemp.idx == NULL) {
+                            temptemp = (llong_t) {.idx = malloc(10 * sizeof(int)), .size = 10, .i = 0};
+                        }
+                        else if ((temptemp.i + 1) >= temptemp.size) {
+                            temptemp.size = temptemp.size + 10;
+                            temptemp.idx  = realloc(temptemp.idx, temptemp.size);
+                        }
+                        temptemp.idx[temptemp.i] = i;
+                        temptemp.i = temptemp.i + 1;
+                        nodes[temp.idx[j]].adj_head = temptemp;
                     }
                 }
             }
@@ -126,9 +138,10 @@ bool dijkstra(int node1, int node2, ListNode list_node, ListNode * list_heap, in
         dijkstra.curr_pidx = prev[dijkstra.curr_idx];
 
         if ((not_found = (dijkstra.curr_idx != node2))) {
-            llong_t * curr;
-            for (curr = nodes[dijkstra.curr_idx].adj_head; curr != NULL; curr = curr->next) {
-                function(dijkstra, curr->idx);
+            llong_t temp = nodes[dijkstra.curr_idx].adj_head;
+            int i;
+            for (i = 0; i < temp.i; i++) {
+                function(dijkstra, temp.idx[i]);
             }
         }
         not_found = list_heap->idx != 0 && not_found;
@@ -211,14 +224,8 @@ int get_min(Node_t * nodes, ListNode * list_heap) {
 void free_nodes(Node_t * nodes, int size) {
     int i;
     for (i = 0; i < size; i++) {
-        llong_t * curr, * prev;
-        if ((curr = nodes[i].adj_head) != NULL) {
-            while (curr != NULL) {
-                prev = curr;
-                curr = curr->next;
-                free(prev);
-            }
-        }
+        llong_t curr = nodes[i].adj_head;
+        free(curr.idx);
     }
     free(nodes);
 }
