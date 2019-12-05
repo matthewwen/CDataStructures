@@ -146,7 +146,18 @@ bool dijkstra(int node1, int node2, ListNode list_node, ListNode * list_heap, in
 void append_element(Node_t * nodes, ListNode * list_heap, int idx) {
     int * heap     = list_heap->heap;
 
-    int curr_idx   = nodes[idx].minidx;
+    //int curr_idx   = nodes[idx].minidx;
+    int curr_idx   = -1;
+	int i;
+	for (i = 0; (curr_idx == -1) && (i < list_heap->idx); i++) {
+		if (heap[i] == idx) {
+			curr_idx = i;
+		}
+	}
+	if (nodes[idx].minidx != curr_idx) {
+		//printf("%d, %d\n", nodes[idx].minidx, curr_idx);
+	}
+	//assert(nodes[idx].minidx == curr_idx);
     if (curr_idx < 0) {
         // realloc memory
         curr_idx = list_heap->idx;
@@ -157,7 +168,7 @@ void append_element(Node_t * nodes, ListNode * list_heap, int idx) {
         }
         heap[curr_idx] = idx;
         list_heap->idx = list_heap->idx + 1;
-        nodes[idx].minidx = curr_idx;
+        //nodes[idx].minidx = curr_idx;
 
     }
 
@@ -170,8 +181,8 @@ void append_element(Node_t * nodes, ListNode * list_heap, int idx) {
         heap[curr_idx] = temp;
 
         // set
-        nodes[heap[node_idx]].minidx = node_idx;
-        nodes[heap[curr_idx]].minidx = curr_idx;
+        //nodes[heap[node_idx]].minidx = node_idx;
+        //nodes[heap[curr_idx]].minidx = curr_idx;
     }
 }
 
@@ -180,7 +191,7 @@ int get_min(Node_t * nodes, ListNode * list_heap) {
     int size       = list_heap->idx - 1;
 
     int min           = heap[0];
-    nodes[min].minidx = -1;
+    //nodes[min].minidx = -1;
     heap[0]           = heap[size];
     list_heap->idx    = size;
 
@@ -209,8 +220,8 @@ int get_min(Node_t * nodes, ListNode * list_heap) {
                 heap[(idx = (is_left ? left_idx: right_idx))] = temp;
                 
                 // set
-                nodes[heap[i]].minidx   = i;
-                nodes[heap[idx]].minidx = idx;
+                //nodes[heap[i]].minidx   = i;
+                //nodes[heap[idx]].minidx = idx;
             }
         }
     }
